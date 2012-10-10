@@ -11,6 +11,7 @@ syntax: glob
 .settings
 .classpath
 .project
+.cache
 .manager
 .scala_dependencies
 
