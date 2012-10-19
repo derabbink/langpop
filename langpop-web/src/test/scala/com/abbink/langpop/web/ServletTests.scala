@@ -13,10 +13,4 @@ class ServletTests extends ScalatraSuite with FunSuite {
 		}
 	}
 	
-	test("get date/language") {
-		get("/langpop/2012-10-19/scala") {
-			status should equal (200)
-			body should include ("2012-10-19/scala");
-		}
-	}
 }

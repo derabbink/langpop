@@ -1,7 +1,14 @@
 package com.abbink.langpop.web
 
-import org.scalatra._
-import scalate.ScalateSupport
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.Date
+
+import scala.util.control.Exception.catching
+
+import java.text.ParseException
+import org.scalatra.scalate.ScalateSupport
+import org.scalatra.ScalatraServlet
 
 class LangpopServlet extends ScalatraServlet with ScalateSupport {
 	
@@ -15,9 +22,21 @@ class LangpopServlet extends ScalatraServlet with ScalateSupport {
 	}
 	
 	get("/*/*") {
+		val format:DateFormat = new SimpleDateFormat("yyyy-MM-dd")
+		var date:Option[Date] = catching(classOf[ParseException]) opt { format.parse(multiParams("splat")(0)) }
+		val lang:String = multiParams("splat")(1)
+		
+		var jdate:Date = date match {
+			case Some(d) => d
+			case None => halt(404)
+		}
+		
+		if (lang isEmpty)
+			halt(404)
+		
 		<html>
 			<body>
-				<h1>{multiParams("splat").apply(0)}/{multiParams("splat").apply(1)}</h1>
+				<h1>{format format jdate}/{lang}</h1>
 			</body>
 		</html>
 	}
