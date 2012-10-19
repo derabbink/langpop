@@ -1,0 +1,3 @@
+name := "langpop-query"
+
+scalaVersion := "2.9.2"
