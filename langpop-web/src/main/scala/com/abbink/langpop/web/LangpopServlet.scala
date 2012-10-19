@@ -14,6 +14,14 @@ class LangpopServlet extends ScalatraServlet with ScalateSupport {
 		</html>
 	}
 	
+	get("/*/*") {
+		<html>
+			<body>
+				<h1>{multiParams("splat").apply(0)}/{multiParams("splat").apply(1)}</h1>
+			</body>
+		</html>
+	}
+	
 	notFound {
 		// remove content type in case it was set through an action
 		contentType = null
