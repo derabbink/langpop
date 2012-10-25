@@ -3,7 +3,7 @@ import Keys._
 
 object LangpopBuild extends Build {
 	lazy val root = Project(id = "langpop",
-							base = file(".")) aggregate(langpopWeb, langpopQuery, langpopQueryGithub, langpopQueryStackoverflow)
+							base = file(".")) aggregate(langpopWeb, langpopQuery, langpopQueryGithub, langpopQueryStackoverflow, langpopAggregate)
 	
 	lazy val langpopQuery = Project(id = "langpop-query",
 							base = file("langpop-query"))
@@ -14,6 +14,9 @@ object LangpopBuild extends Build {
 	lazy val langpopQueryStackoverflow = Project(id = "langpop-query-stackoverflow",
 							base = file("langpop-query-stackoverflow")) dependsOn(langpopQuery)
 	
+	lazy val langpopAggregate = Project(id = "langpop-aggregate",
+							base = file("langpop-aggregate")) dependsOn(langpopQuery)
+	
 	lazy val langpopWeb = Project(id = "langpop-web",
-							base = file("langpop-web")) dependsOn(langpopQuery, langpopQueryGithub, langpopQueryStackoverflow)
+							base = file("langpop-web")) dependsOn(langpopQuery, langpopQueryGithub, langpopQueryStackoverflow, langpopAggregate)
 }

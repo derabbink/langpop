@@ -46,6 +46,7 @@
   <classpathentry exported="true" path="/langpop-query" kind="src" combineaccessrules="false"></classpathentry>
   <classpathentry exported="true" path="/langpop-query-github" kind="src" combineaccessrules="false"></classpathentry>
   <classpathentry exported="true" path="/langpop-query-stackoverflow" kind="src" combineaccessrules="false"></classpathentry>
+  <classpathentry exported="true" path="/langpop-aggregate" kind="src" combineaccessrules="false"></classpathentry>
   <classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"></classpathentry>
   <classpathentry path="bin" kind="output"></classpathentry>
 </classpath>
