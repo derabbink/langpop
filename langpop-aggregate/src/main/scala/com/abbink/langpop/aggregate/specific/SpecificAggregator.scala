@@ -2,15 +2,14 @@ package com.abbink.langpop.aggregate.specific
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.Date
-
 import scala.collection.JavaConversions.asScalaConcurrentMap
 import scala.collection.mutable.ConcurrentMap
-
 import SpecificAggregator.AggregationResult
 import SpecificAggregator.Query
 import SpecificAggregator.SpecificAggregatorMessage
 import SpecificAggregator.StartCrawling
 import akka.actor.Actor
+import com.abbink.langpop.aggregate.Aggregator
 
 object SpecificAggregator {
 	
@@ -21,7 +20,7 @@ object SpecificAggregator {
 	
 }
 
-class TagDate(tag:String, date:Date)
+case class TagDate(tag:String, date:Date)
 
 trait SpecificAggregator extends Actor {
 	import SpecificAggregator._
@@ -47,8 +46,13 @@ trait SpecificAggregator extends Actor {
 	protected def startActors()
 	
 	private def query(query : Query) = {
-		//TODO
+		import Aggregator._
 		
+		import query._
+		var key = TagDate(tag, date)
+		var num : Option[Long] = store get key
+		
+		sender ! QueryResult(tag, date, num)
 	}
 	
 	private def processAggregationResult(r : AggregationResult) {

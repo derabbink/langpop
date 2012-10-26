@@ -1,8 +1,9 @@
-import com.abbink.langpop.web._
+import org.scalatra.LifeCycle
 
-import org.scalatra._
-import javax.servlet.ServletContext
 import com.abbink.langpop.aggregate.Aggregator
+import com.abbink.langpop.web.LangpopServlet
+
+import javax.servlet.ServletContext
 
 /**
  * This is the Scalatra bootstrap file. You can use it to mount servlets or

@@ -1,19 +1,29 @@
 package com.abbink.langpop.aggregate
 
-import com.typesafe.config.ConfigFactory
-import akka.actor.Actor
-import akka.pattern.ask
-import com.abbink.langpop.aggregate.tags.TagReader
-import akka.actor.ActorSystem
-import akka.actor.Props
-import akka.actor.ActorRef
 import java.util.Date
-import akka.dispatch.Await
-import akka.dispatch.Future
-import akka.util.Timeout
-import akka.util.Duration
+
 import com.abbink.langpop.aggregate.specific.github.GithubAggregator
 import com.abbink.langpop.aggregate.specific.stackoverflow.StackoverflowAggregator
+import com.abbink.langpop.aggregate.specific.SpecificAggregator
+import com.abbink.langpop.aggregate.tags.TagReader
+import com.typesafe.config.ConfigFactory
+
+import Aggregator.AggregatorMessage
+import Aggregator.CombinedResult
+import Aggregator.Query
+import Aggregator.QueryResult
+import Aggregator.StartProcessing
+import Aggregator.TagSeq
+import akka.actor.actorRef2Scala
+import akka.actor.Actor
+import akka.actor.ActorRef
+import akka.actor.ActorSystem
+import akka.actor.Props
+import akka.dispatch.Await
+import akka.dispatch.Future
+import akka.pattern.ask
+import akka.util.Timeout.durationToTimeout
+import akka.util.Duration
 
 object Aggregator {
 	
@@ -21,8 +31,9 @@ object Aggregator {
 	case class StartProcessing extends AggregatorMessage
 	case class TagSeq(tags:Seq[String]) extends AggregatorMessage
 	case class Query(tag:String, date:Date) extends AggregatorMessage
+	case class QueryResult(tag:String, date:Date, number:Option[Long]) extends AggregatorMessage
 	//this is a message only intended for outbound communication of the Aggregator actor
-	case class QueryResult(tag:String, date:Date, github:Option[Long], stackoverflow:Option[Long])
+	case class CombinedResult(tag:String, date:Date, github:Option[Long], stackoverflow:Option[Long])
 	
 	implicit val system:ActorSystem = ActorSystem("LangpopSystem", ConfigFactory.load())
 	
@@ -34,8 +45,8 @@ object Aggregator {
 	}
 	
 	def retrieve(tag: String, date: Date) : CombinedResponse = {
-		var f:Future[QueryResult] = aggregatorRef.ask(Query(tag, date))(Duration.Inf).mapTo[QueryResult]
-		var QueryResult(_, _, git, stack) = Await.result(f, Duration.Inf)
+		val f:Future[CombinedResult] = aggregatorRef.ask(Query(tag, date))(Duration.Inf).mapTo[CombinedResult]
+		val CombinedResult(_, _, git, stack) = Await.result(f, Duration.Inf)
 		
 		var gitL:Long = git match {
 			case None => 0
@@ -80,7 +91,14 @@ class Aggregator extends Actor  {
 	
 	private def forwardQueryToSpecificAggregators(tag:String, date:Date) = {
 		val msg = SpecificAggregator.Query(tag, date)
-		githubAggregatorRef ! msg
-		stackoverflowAggregatorRef ! msg
+		val f1 = githubAggregatorRef.ask(msg)(Duration.Inf)
+		val f2 = stackoverflowAggregatorRef.ask(msg)(Duration.Inf)
+		
+		val resultMsg = for {
+			github <- f1.mapTo[QueryResult]
+			stackoverflow <- f2.mapTo[QueryResult]
+		} yield CombinedResult(tag, date, github.number, stackoverflow.number)
+		
+		sender ! resultMsg
 	}
 }

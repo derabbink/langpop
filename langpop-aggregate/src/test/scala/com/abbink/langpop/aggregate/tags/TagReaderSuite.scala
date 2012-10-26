@@ -20,7 +20,7 @@ class TagReaderSuite(_system: ActorSystem) extends TestKit(_system) with Implici
 		system.shutdown()
 	}
 	
-	"A TagReader actor " must {
+	"A TagReader actor" must {
 		"send back seq of 3 tags" in {
 			val ref = system.actorOf(Props[TagReader])
 			ref ! ReadFile("/tags.txt")
