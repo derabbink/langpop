@@ -3,6 +3,7 @@ package com.abbink.langpop.aggregate.tags
 import java.io.File
 import akka.actor.Actor
 import scala.io.Source
+import com.abbink.langpop.aggregate.Aggregator
 
 object TagReader {
 	sealed trait TagReaderMessage
@@ -14,7 +15,10 @@ class TagReader extends Actor with TagFileReader {
 	
 	def receive = {
 		case message : TagReaderMessage => message match {
-			case ReadFile(f) => read(f)
+			case ReadFile(f) =>
+				var tags = read(f)
+				sender ! new Aggregator.TagSeq(tags)
+				context.stop(self)
 		}
 	}
 }
