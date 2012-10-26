@@ -3,12 +3,11 @@ package com.abbink.langpop.web
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Date
-
 import scala.util.control.Exception.catching
-
 import java.text.ParseException
 import org.scalatra.scalate.ScalateSupport
 import org.scalatra.ScalatraServlet
+import com.abbink.langpop.aggregate.Aggregator
 
 class LangpopServlet extends ScalatraServlet with ScalateSupport {
 	
@@ -34,6 +33,7 @@ class LangpopServlet extends ScalatraServlet with ScalateSupport {
 		if (lang isEmpty)
 			halt(404)
 		
+		Aggregator.retrieve(lang, jdate)
 		<html>
 			<body>
 				<h1>{format format jdate}/{lang}</h1>
