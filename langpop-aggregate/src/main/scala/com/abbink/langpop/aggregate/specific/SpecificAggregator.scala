@@ -10,6 +10,7 @@ import SpecificAggregator.SpecificAggregatorMessage
 import SpecificAggregator.StartCrawling
 import akka.actor.Actor
 import com.abbink.langpop.aggregate.Aggregator
+import akka.event.Logging
 
 object SpecificAggregator {
 	
@@ -28,6 +29,12 @@ trait SpecificAggregator extends Actor {
 	protected var tags : Seq[String] = _
 	protected var beginDate : Date = _
 	protected var store : ConcurrentMap[TagDate, Long] = new ConcurrentHashMap[TagDate, Long]
+	
+	val log = Logging(context.system, this)
+	
+	override def preStart() = {
+		log.debug("Starting")
+	}
 	
 	def receive = {
 		case message : SpecificAggregatorMessage => message match {

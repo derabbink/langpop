@@ -4,6 +4,7 @@ import java.io.File
 import akka.actor.Actor
 import scala.io.Source
 import com.abbink.langpop.aggregate.Aggregator
+import akka.event.Logging
 
 object TagReader {
 	sealed trait TagReaderMessage
@@ -12,6 +13,12 @@ object TagReader {
 
 class TagReader extends Actor with TagFileReader {
 	import TagReader._
+	
+	val log = Logging(context.system, this)
+	
+	override def preStart() = {
+		log.debug("Starting")
+	}
 	
 	def receive = {
 		case message : TagReaderMessage => message match {

@@ -1,13 +1,11 @@
 package com.abbink.langpop.aggregate
 
 import java.util.Date
-
 import com.abbink.langpop.aggregate.specific.github.GithubAggregator
 import com.abbink.langpop.aggregate.specific.stackoverflow.StackoverflowAggregator
 import com.abbink.langpop.aggregate.specific.SpecificAggregator
 import com.abbink.langpop.aggregate.tags.TagReader
 import com.typesafe.config.ConfigFactory
-
 import Aggregator.AggregatorMessage
 import Aggregator.CombinedResult
 import Aggregator.Query
@@ -24,6 +22,7 @@ import akka.dispatch.Future
 import akka.pattern.ask
 import akka.util.Timeout.durationToTimeout
 import akka.util.Duration
+import akka.event.Logging
 
 object Aggregator {
 	
@@ -67,6 +66,12 @@ class Aggregator extends Actor  {
 	
 	private var stackoverflowAggregatorRef : ActorRef = _
 	private var githubAggregatorRef : ActorRef = _
+	
+	val log = Logging(context.system, this)
+	
+	override def preStart() = {
+		log.debug("Starting")
+	}
 	
 	def receive = {
 		case message : AggregatorMessage => message match {
