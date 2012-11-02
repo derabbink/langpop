@@ -34,7 +34,8 @@ object Aggregator {
 	//this is a message only intended for outbound communication of the Aggregator actor
 	case class CombinedResult(tag:String, date:Date, github:Option[Long], stackoverflow:Option[Long])
 	
-	implicit val system:ActorSystem = ActorSystem("LangpopSystem", ConfigFactory.load())
+	val config = ConfigFactory.load()
+	implicit val system:ActorSystem = ActorSystem("LangpopSystem", config.getConfig("langpop-aggregate").withFallback(config))
 	
 	private var aggregatorRef : ActorRef = _
 	
@@ -70,7 +71,7 @@ class Aggregator extends Actor  {
 	val log = Logging(context.system, this)
 	
 	override def preStart() = {
-		log.debug("Starting")
+		log.debug("Starting Aggregator")
 	}
 	
 	def receive = {
@@ -79,6 +80,7 @@ class Aggregator extends Actor  {
 			case TagSeq(tags) => startSpecificAggregators(tags)
 			case Query(tag, date) => forwardQueryToSpecificAggregators(tag, date)
 		}
+		case m => log.warning("Received unrecognized message: " + m)
 	}
 	
 	private def startTagReader () = {

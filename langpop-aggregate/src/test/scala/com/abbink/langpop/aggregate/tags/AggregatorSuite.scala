@@ -2,6 +2,7 @@ package com.abbink.langpop.aggregate.tags
 
 import akka.testkit.TestKit
 import akka.testkit.ImplicitSender
+import com.typesafe.config.ConfigFactory
 import org.scalatest.matchers.MustMatchers
 import org.scalatest.BeforeAndAfterAll
 import akka.actor.ActorSystem
@@ -9,12 +10,13 @@ import org.scalatest.WordSpec
 import com.abbink.langpop.aggregate.Aggregator
 import akka.actor.Props
 import java.util.Date
+import com.typesafe.config.ConfigFactory
 
 class AggregatorSuite(_system: ActorSystem) extends TestKit(_system) with ImplicitSender with WordSpec with MustMatchers with BeforeAndAfterAll {
 	
 	import Aggregator._
 	
-	def this() = this(ActorSystem("AggregatorSuite"))
+	def this() = this(ActorSystem("AggregatorSuite", ConfigFactory.load()))
 	
 	override def afterAll = {
 		system.shutdown()

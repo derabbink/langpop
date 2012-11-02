@@ -17,7 +17,7 @@ class TagReader extends Actor with TagFileReader {
 	val log = Logging(context.system, this)
 	
 	override def preStart() = {
-		log.debug("Starting")
+		log.debug("Starting TagReader")
 	}
 	
 	def receive = {
@@ -27,6 +27,7 @@ class TagReader extends Actor with TagFileReader {
 				sender ! new Aggregator.TagSeq(tags)
 				context.stop(self)
 		}
+		case m => log.warning("Received unrecognized message: " + m)
 	}
 }
 

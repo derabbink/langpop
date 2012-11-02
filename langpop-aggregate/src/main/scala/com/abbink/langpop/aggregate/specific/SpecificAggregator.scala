@@ -33,7 +33,7 @@ trait SpecificAggregator extends Actor {
 	val log = Logging(context.system, this)
 	
 	override def preStart() = {
-		log.debug("Starting")
+		log.debug("Starting SpecificAggregator")
 	}
 	
 	def receive = {
