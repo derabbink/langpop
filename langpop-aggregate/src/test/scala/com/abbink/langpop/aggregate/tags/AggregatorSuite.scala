@@ -22,24 +22,24 @@ class AggregatorSuite(_system: ActorSystem) extends TestKit(_system) with Implic
 		system.shutdown()
 	}
 	
-	"An Aggregator actor" must {
-		"start a TagReader actor" in {
-			val ref = system.actorOf(Props[Aggregator])
-			ref ! StartProcessing()
-			
-			//TODO test if actor is started
-		}
-	}
-	
-	"An Aggregator actor" must {
-		"produce combined result of None for any tag and any date" in {
-			val tag = "foo"
-			val date = new Date()
-			val ref = system.actorOf(Props[Aggregator])
-			ref ! Query(tag, date)
-			
-			//TODO test if actor is started
-			expectMsg(CombinedResult(tag, date, None, None))
-		}
-	}
+//	"An Aggregator actor" must {
+//		"start a TagReader actor" in {
+//			val ref = system.actorOf(Props[Aggregator])
+//			ref ! StartProcessing()
+//			
+//			//TODO test if actor is started
+//		}
+//	}
+//	
+//	"An Aggregator actor" must {
+//		"produce combined result of None for any tag and any date" in {
+//			val tag = "foo"
+//			val date = new Date()
+//			val ref = system.actorOf(Props[Aggregator])
+//			ref ! Query(tag, date)
+//			
+//			//TODO test if actor is started
+//			expectMsg(CombinedResult(tag, date, None, None))
+//		}
+//	}
 }

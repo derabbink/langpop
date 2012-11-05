@@ -24,7 +24,7 @@ class TagReader extends Actor with TagFileReader {
 		case message : TagReaderMessage => message match {
 			case ReadFile(f) =>
 				var tags = read(f)
-				sender ! new Aggregator.TagSeq(tags)
+				sender ! tags
 				context.stop(self)
 		}
 		case m => log.warning("Received unrecognized message: " + m)

@@ -6,12 +6,6 @@ import com.abbink.langpop.aggregate.specific.stackoverflow.StackoverflowAggregat
 import com.abbink.langpop.aggregate.specific.SpecificAggregator
 import com.abbink.langpop.aggregate.tags.TagReader
 import com.typesafe.config.ConfigFactory
-import Aggregator.AggregatorMessage
-import Aggregator.CombinedResult
-import Aggregator.Query
-import Aggregator.QueryResult
-import Aggregator.StartProcessing
-import Aggregator.TagSeq
 import akka.actor.actorRef2Scala
 import akka.actor.Actor
 import akka.actor.ActorRef
@@ -20,92 +14,64 @@ import akka.actor.Props
 import akka.dispatch.Await
 import akka.dispatch.Future
 import akka.pattern.ask
-import akka.util.Timeout.durationToTimeout
+import akka.util.Timeout
 import akka.util.Duration
+import akka.util.duration._
 import akka.event.Logging
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import javax.management.Query
 
 object Aggregator {
 	
 	sealed trait AggregatorMessage
-	case class StartProcessing extends AggregatorMessage
-	case class TagSeq(tags:Seq[String]) extends AggregatorMessage
-	case class Query(tag:String, date:Date) extends AggregatorMessage
-	case class QueryResult(tag:String, date:Date, number:Option[Long]) extends AggregatorMessage
-	//this is a message only intended for outbound communication of the Aggregator actor
-	case class CombinedResult(tag:String, date:Date, github:Option[Long], stackoverflow:Option[Long])
+	case class QueryResponse(value:Option[Long]) extends AggregatorMessage
 	
 	val config = ConfigFactory.load()
-	implicit val system:ActorSystem = ActorSystem("LangpopSystem", config.getConfig("langpop-aggregate").withFallback(config))
+	val mergedConfig = config.getConfig("langpop-aggregate").withFallback(config)
+	implicit val system:ActorSystem = ActorSystem("LangpopSystem", mergedConfig)
 	
-	private var aggregatorRef : ActorRef = _
+	private var githubAggregatorRef : ActorRef = _
+	private var stackoverflowAggregatorRef : ActorRef = _
 	
 	def start() = {
-		aggregatorRef = system.actorOf(Props[Aggregator], name = "Aggregator")
-		aggregatorRef ! StartProcessing
+		val tagsFile = mergedConfig getString "langpop.aggregate.tagsfile"
+		val format:DateFormat = new SimpleDateFormat("yyyy-MM-dd")
+		val startDate = format parse (mergedConfig getString "langpop.aggregate.startdate")
+		
+		var tags = readTags(tagsFile)
+		startAggregators(tags, startDate)
+	}
+	
+	private def readTags(tagsFile:String) : Seq[String] = {
+		val timeout:Timeout = Timeout(10 seconds)
+		var tagReaderRef = system.actorOf(Props[TagReader], name="TagReader")
+		var f:Future[Seq[String]] = ask(tagReaderRef, TagReader.ReadFile(tagsFile))(timeout).mapTo[Seq[String]]
+		Await.result[Seq[String]](f, timeout.duration)
+	}
+	
+	private def startAggregators(tags:Seq[String], beginDate:Date) {
+		githubAggregatorRef = system.actorOf(Props(new GithubAggregator(tags, beginDate)), name = "GithubAggregator")
+		stackoverflowAggregatorRef = system.actorOf(Props(new StackoverflowAggregator(tags, beginDate)), name = "StackoverflowAggregator")
 	}
 	
 	def retrieve(tag: String, date: Date) : CombinedResponse = {
-		val f:Future[CombinedResult] = aggregatorRef.ask(Query(tag, date))(Duration.Inf).mapTo[CombinedResult]
-		val CombinedResult(_, _, git, stack) = Await.result(f, Duration.Inf)
-		
-		var gitL:Long = git match {
-			case None => 0
-			case Some(n) => n
-		}
-		var stackL:Long = stack match {
-			case None => 0
-			case Some(n) => n
-		}
-		
-		CombinedResponse(tag, date, gitL, stackL)
-	}
-}
-
-class Aggregator extends Actor  {
-	import Aggregator._
-	import com.abbink.langpop.aggregate.specific.SpecificAggregator
-	
-	private var stackoverflowAggregatorRef : ActorRef = _
-	private var githubAggregatorRef : ActorRef = _
-	
-	val log = Logging(context.system, this)
-	
-	override def preStart() = {
-		log.debug("Starting Aggregator")
-	}
-	
-	def receive = {
-		case message : AggregatorMessage => message match {
-			case _:StartProcessing => startTagReader()
-			case TagSeq(tags) => startSpecificAggregators(tags)
-			case Query(tag, date) => forwardQueryToSpecificAggregators(tag, date)
-		}
-		case m => log.warning("Received unrecognized message: " + m)
-	}
-	
-	private def startTagReader () = {
-		context.actorOf(Props[TagReader], name="TagReader") ! TagReader.ReadFile("/tags.txt")
-	}
-	
-	private def startSpecificAggregators(tags : Seq[String]) = {
-		stackoverflowAggregatorRef = context.actorOf(Props[StackoverflowAggregator], name="StackoverflowAggregator")
-		githubAggregatorRef = context.actorOf(Props[GithubAggregator], name="GithubAggregator")
-		
-		val msg = SpecificAggregator.StartCrawling(tags, new Date(2012, 10, 25))
-		stackoverflowAggregatorRef ! msg
-		githubAggregatorRef ! msg
-	}
-	
-	private def forwardQueryToSpecificAggregators(tag:String, date:Date) = {
 		val msg = SpecificAggregator.Query(tag, date)
-		val f1 = githubAggregatorRef.ask(msg)(Duration.Inf)
-		val f2 = stackoverflowAggregatorRef.ask(msg)(Duration.Inf)
+		val timeout:Timeout = Timeout(3 seconds)
 		
-		val resultMsg = for {
-			github <- f1.mapTo[QueryResult]
-			stackoverflow <- f2.mapTo[QueryResult]
-		} yield CombinedResult(tag, date, github.number, stackoverflow.number)
+		val f1 = ask(githubAggregatorRef, msg)(timeout)
+		val f2 = ask(stackoverflowAggregatorRef, msg)(timeout)
+		val f3 = for {
+			github <- f1.mapTo[QueryResponse]
+			stackoverflow <- f2.mapTo[QueryResponse]
+			
+			combined <- (Future {
+				val git = github.value.getOrElse[Long](0)
+				val stack = stackoverflow.value.getOrElse[Long](0)
+				CombinedResponse(tag, date, git, stack)
+			}).mapTo[CombinedResponse]
+		} yield combined
 		
-		sender ! resultMsg
+		Await.result(f3, timeout.duration).asInstanceOf[CombinedResponse]
 	}
 }
