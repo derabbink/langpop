@@ -2,9 +2,22 @@ package com.abbink.langpop.web
 
 import org.scalatest.FunSuite
 import org.scalatra.test.scalatest._
+import org.scalatest.BeforeAndAfter
+import com.abbink.langpop.aggregate.Aggregator
+import org.scalatest.BeforeAndAfterAll
 
-class DateLangRequestTests extends ScalatraSuite with FunSuite {
+class DateLangRequestTests extends ScalatraSuite with FunSuite with BeforeAndAfterAll {
 	addServlet(classOf[LangpopServlet], "/langpop/*")
+	
+	override def beforeAll = {
+		super.beforeAll()
+		Aggregator.start()
+	}
+	
+	override def afterAll = {
+		super.afterAll()
+		Aggregator.system.shutdown()
+	}
 	
 	test("get date/language") {
 		get("/langpop/2012-10-19/scala") {

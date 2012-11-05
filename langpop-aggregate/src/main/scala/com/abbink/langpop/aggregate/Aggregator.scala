@@ -61,17 +61,13 @@ object Aggregator {
 		
 		val f1 = ask(githubAggregatorRef, msg)(timeout)
 		val f2 = ask(stackoverflowAggregatorRef, msg)(timeout)
+		//f1.flatMap(g => f2.flatMap(s => (g,s))).flatMap(r => CombinedResponse(tag, date, r._1.value.getOrElse[Long](0), r._2.value.getOrElse[Long](0))) //this doesn't work and is unreadable
 		val f3 = for {
 			github <- f1.mapTo[QueryResponse]
 			stackoverflow <- f2.mapTo[QueryResponse]
-			
-			combined <- (Future {
-				val git = github.value.getOrElse[Long](0)
-				val stack = stackoverflow.value.getOrElse[Long](0)
-				CombinedResponse(tag, date, git, stack)
-			}).mapTo[CombinedResponse]
-		} yield combined
+		} yield (github.value.getOrElse[Long](0), stackoverflow.value.getOrElse[Long](0))
 		
-		Await.result(f3, timeout.duration).asInstanceOf[CombinedResponse]
+		val (git, stack) = Await.result(f3, timeout.duration).asInstanceOf[(Long, Long)]
+		CombinedResponse(tag, date, git, stack)
 	}
 }
