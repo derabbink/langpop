@@ -12,9 +12,10 @@ import com.typesafe.config.ConfigFactory
 
 class TagReaderSuite(_system: ActorSystem) extends TestKit(_system) with ImplicitSender with WordSpec with MustMatchers with BeforeAndAfterAll {
 	
-	import TagReader._
-	import Aggregator._
+	import TagReader.ReadFile
 	
+	//at some point wthis was required, while it wasn't before
+	val config = ConfigFactory.load()
 	def this() = this(ActorSystem("TagReaderSuite", ConfigFactory.load()))
 	
 	override def afterAll = {

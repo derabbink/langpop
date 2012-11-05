@@ -1,34 +1,32 @@
-package com.abbink.langpop.aggregate.tags
+package com.abbink.langpop.aggregate
 
-import org.scalatest.FunSuite
-import org.scalatest.BeforeAndAfter
-import com.abbink.langpop.aggregate.Aggregator
-import com.typesafe.config.ConfigFactory
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import com.abbink.langpop.aggregate.CombinedResponse
-import com.abbink.langpop.aggregate.Data
-import org.scalatest.BeforeAndAfterAll
 
-class AggregatorObjSuite extends FunSuite with BeforeAndAfterAll {
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.FunSuite
+
+import com.typesafe.config.ConfigFactory
+
+class AggregatorObjSuite extends FunSuite with BeforeAndAfterAll with TestingEnvironment {
 	
 	val config = ConfigFactory.load()
 	val format:DateFormat = new SimpleDateFormat("yyyy-MM-dd")
 	val startDate = format parse (config getString "langpop.aggregate.startdate") 
 	
 	override def beforeAll = {
-		Aggregator.start()
+		aggregator.start()
 	}
 	
 	override def afterAll = {
-		Aggregator.system.shutdown()
+		aggregator.system.shutdown()
 	}
 	
 	test("Retrieving empty result for tag 'foo'") {
 		val tag = "foo"
 		val expected = CombinedResponse(tag, startDate, 0, 0)
 		
-		val actual = Aggregator.retrieve(tag, startDate)
+		val actual = aggregator.retrieve(tag, startDate)
 		assert(actual === expected)
 	}
 }

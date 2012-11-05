@@ -10,7 +10,7 @@ trait StackoverflowAggregator extends SpecificAggregator {
 }
 
 trait StackoverflowAggregatorFactory extends SingularSpecificAggregatorFactory {
-	override def create(tags:Seq[String], beginDate:Date) : StackoverflowAggregator
+	override def create(tags:Seq[String], beginDate:Date) : SpecificAggregator
 }
 
 trait StackoverflowAggregatorComponent {
@@ -19,6 +19,7 @@ trait StackoverflowAggregatorComponent {
 	
 	object StackoverflowAggregatorFactoryImpl extends StackoverflowAggregatorFactory {
 		override def create(tags:Seq[String], beginDate:Date) : StackoverflowAggregator = {
+			println("  doing stackoverflow 2")
 			new StackoverflowAggregatorImpl(tags, beginDate)
 		}
 	}

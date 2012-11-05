@@ -6,17 +6,17 @@ import org.scalatest.BeforeAndAfter
 import com.abbink.langpop.aggregate.Aggregator
 import org.scalatest.BeforeAndAfterAll
 
-class DateLangRequestTests extends ScalatraSuite with FunSuite with BeforeAndAfterAll {
+class DateLangRequestTests extends ScalatraSuite with FunSuite with BeforeAndAfterAll with TestingEnvironment {
 	addServlet(classOf[LangpopServlet], "/langpop/*")
 	
 	override def beforeAll = {
 		super.beforeAll()
-		Aggregator.start()
+		aggregator.start()
 	}
 	
 	override def afterAll = {
 		super.afterAll()
-		Aggregator.system.shutdown()
+		aggregator.system.shutdown()
 	}
 	
 	test("get date/language") {

@@ -7,9 +7,8 @@ import scala.util.control.Exception.catching
 import java.text.ParseException
 import org.scalatra.scalate.ScalateSupport
 import org.scalatra.ScalatraServlet
-import com.abbink.langpop.aggregate.Aggregator
 
-class LangpopServlet extends ScalatraServlet with ScalateSupport {
+class LangpopServlet extends ScalatraServlet with ScalateSupport with ComponentRegistry {
 	
 	get("/") {
 		<html>
@@ -33,7 +32,18 @@ class LangpopServlet extends ScalatraServlet with ScalateSupport {
 		if (lang isEmpty)
 			halt(404)
 		
-		Aggregator.retrieve(lang, jdate)
+		try {
+			println("retrieving "+lang+", "+date)
+			aggregator.retrieve(lang, jdate)
+		}
+		catch {
+			case e:Exception =>
+				var m : String = " "+ e.getMessage()
+				var t : String = " "+ e.getStackTraceString
+				println(m)
+				println(t)
+			case a => println("something else "+a)
+		}
 		<html>
 			<body>
 				<h1>{format format jdate}/{lang}</h1>

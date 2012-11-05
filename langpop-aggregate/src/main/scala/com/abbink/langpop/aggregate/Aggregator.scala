@@ -44,8 +44,10 @@ trait AggregatorComponent {
 		val mergedConfig = config.getConfig("langpop-aggregate").withFallback(config)
 		implicit val system:ActorSystem = ActorSystem("LangpopSystem", mergedConfig)
 		
-		private var githubAggregatorRef : ActorRef = _
-		private var stackoverflowAggregatorRef : ActorRef = _
+		protected var githubAggregatorRef : ActorRef = _
+		protected var stackoverflowAggregatorRef : ActorRef = _
+		
+		println(" we have a NEW INSTANCE")
 		
 		def start() = {
 			val tagsFile = mergedConfig getString "langpop.aggregate.tagsfile"
@@ -64,6 +66,7 @@ trait AggregatorComponent {
 		}
 		
 		protected def startAggregators(tags:Seq[String], beginDate:Date) {
+			println("  setting Aggregators")
 			githubAggregatorRef = system.actorOf(Props(combinedSpecificAggregatorFactory.createGithubAggregator(tags, beginDate)), name = "GithubAggregator")
 			stackoverflowAggregatorRef = system.actorOf(Props(combinedSpecificAggregatorFactory.createStackoverflowAggregator(tags, beginDate)), name = "StackoverflowAggregator")
 		}
@@ -72,6 +75,9 @@ trait AggregatorComponent {
 			val msg = SpecificAggregator.Query(tag, date)
 			val timeout:Timeout = Timeout(3 seconds)
 			
+			println("   asking aggregators")
+			if (null == githubAggregatorRef)
+				println("   we lost github")
 			val f1 = ask(githubAggregatorRef, msg)(timeout)
 			val f2 = ask(stackoverflowAggregatorRef, msg)(timeout)
 			//f1.flatMap(g => f2.flatMap(s => (g,s))).flatMap(r => CombinedResponse(tag, date, r._1.value.getOrElse[Long](0), r._2.value.getOrElse[Long](0))) //this doesn't work and is unreadable

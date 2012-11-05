@@ -10,7 +10,7 @@ trait GithubAggregator extends SpecificAggregator {
 }
 
 trait GithubAggregatorFactory extends SingularSpecificAggregatorFactory {
-	override def create(tags:Seq[String], beginDate:Date) : GithubAggregator
+	override def create(tags:Seq[String], beginDate:Date) : SpecificAggregator	
 }
 
 trait GithubAggregatorComponent {
@@ -19,6 +19,7 @@ trait GithubAggregatorComponent {
 	
 	object GithubAggregatorFactoryImpl extends GithubAggregatorFactory {
 		override def create(tags:Seq[String], beginDate:Date) : GithubAggregator = {
+			println("  doing github 2")
 			new GithubAggregatorImpl(tags, beginDate)
 		}
 	}

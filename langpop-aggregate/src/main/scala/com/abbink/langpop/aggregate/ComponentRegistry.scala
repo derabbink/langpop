@@ -6,7 +6,7 @@ import com.abbink.langpop.aggregate.specific.github.GithubAggregator
 import com.abbink.langpop.aggregate.specific.stackoverflow.StackoverflowAggregator
 import com.abbink.langpop.aggregate.specific.CombinedSpecificAggregatorFactoryComponent
 
-object ComponentRegistry extends
+trait ComponentRegistry extends
 	AggregatorComponent with
 	CombinedSpecificAggregatorFactoryComponent with
 	GithubAggregatorComponent with

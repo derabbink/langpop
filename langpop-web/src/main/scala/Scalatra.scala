@@ -1,6 +1,6 @@
 import org.scalatra.LifeCycle
 
-import com.abbink.langpop.aggregate.Aggregator
+import com.abbink.langpop.web.ComponentRegistry
 import com.abbink.langpop.web.LangpopServlet
 
 import javax.servlet.ServletContext
@@ -10,10 +10,10 @@ import javax.servlet.ServletContext
  * filters. It's also a good place to put initialization code which needs to
  * run at application start (e.g. database configurations), and init params.
  */
-class Scalatra extends LifeCycle {
+class Scalatra extends LifeCycle with ComponentRegistry {
 	override def init(context: ServletContext) {
 		
-		Aggregator.start()
+		aggregator.start()
 		
 		// Mount one or more servlets
 		context.mount(new LangpopServlet, "/langpop/*")
