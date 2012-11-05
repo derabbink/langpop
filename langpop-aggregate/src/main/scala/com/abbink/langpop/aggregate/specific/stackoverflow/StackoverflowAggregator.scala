@@ -2,14 +2,35 @@ package com.abbink.langpop.aggregate.specific.stackoverflow
 
 import com.abbink.langpop.aggregate.specific.SpecificAggregator
 import java.util.Date
+import com.abbink.langpop.aggregate.specific.SingularSpecificAggregatorFactory
+import com.abbink.langpop.aggregate.specific.SpecificAggregatorImpl
 
-class StackoverflowAggregator(tags:Seq[String], beginDate:Date) extends SpecificAggregator(tags, beginDate) {
+trait StackoverflowAggregator extends SpecificAggregator {
 	
-	override def preStart() = {
-		log.debug("Starting StackoverflowAggregator")
+}
+
+trait StackoverflowAggregatorFactory extends SingularSpecificAggregatorFactory {
+	override def create(tags:Seq[String], beginDate:Date) : StackoverflowAggregator
+}
+
+trait StackoverflowAggregatorComponent {
+	
+	val stackoverflowAggregatorFactory:StackoverflowAggregatorFactory
+	
+	object StackoverflowAggregatorFactoryImpl extends StackoverflowAggregatorFactory {
+		override def create(tags:Seq[String], beginDate:Date) : StackoverflowAggregator = {
+			new StackoverflowAggregatorImpl(tags, beginDate)
+		}
 	}
 	
-	override def startActors() = {
+	class StackoverflowAggregatorImpl(tags:Seq[String], beginDate:Date) extends SpecificAggregatorImpl(tags, beginDate) with StackoverflowAggregator {
 		
+		override def preStart() = {
+			log.debug("Starting StackoverflowAggregator")
+		}
+		
+		protected override def startActors() = {
+			
+		}
 	}
 }

@@ -1,0 +1,19 @@
+package com.abbink.langpop.aggregate
+
+import com.abbink.langpop.aggregate.specific.github.GithubAggregatorComponent
+import com.abbink.langpop.aggregate.specific.stackoverflow.StackoverflowAggregatorComponent
+import com.abbink.langpop.aggregate.specific.github.GithubAggregator
+import com.abbink.langpop.aggregate.specific.stackoverflow.StackoverflowAggregator
+import com.abbink.langpop.aggregate.specific.CombinedSpecificAggregatorFactoryComponent
+
+object ComponentRegistry extends
+	AggregatorComponent with
+	CombinedSpecificAggregatorFactoryComponent with
+	GithubAggregatorComponent with
+	StackoverflowAggregatorComponent
+{
+	val aggregator = AggregatorImpl
+	val combinedSpecificAggregatorFactory = CombinedSpecificAggregatorFactoryImpl
+	val githubAggregatorFactory = GithubAggregatorFactoryImpl
+	val stackoverflowAggregatorFactory = StackoverflowAggregatorFactoryImpl
+}

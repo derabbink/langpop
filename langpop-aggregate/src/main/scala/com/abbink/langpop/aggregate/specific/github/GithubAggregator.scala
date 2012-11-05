@@ -1,16 +1,36 @@
 package com.abbink.langpop.aggregate.specific.github
 
 import com.abbink.langpop.aggregate.specific.SpecificAggregator
-import akka.event.Logging
 import java.util.Date
+import com.abbink.langpop.aggregate.specific.SingularSpecificAggregatorFactory
+import com.abbink.langpop.aggregate.specific.SpecificAggregatorImpl
 
-class GithubAggregator(tags:Seq[String], beginDate:Date) extends SpecificAggregator(tags, beginDate) {
+trait GithubAggregator extends SpecificAggregator {
 	
-	override def preStart() = {
-		log.debug("Starting GithubAggregator")
+}
+
+trait GithubAggregatorFactory extends SingularSpecificAggregatorFactory {
+	override def create(tags:Seq[String], beginDate:Date) : GithubAggregator
+}
+
+trait GithubAggregatorComponent {
+	
+	val githubAggregatorFactory:GithubAggregatorFactory
+	
+	object GithubAggregatorFactoryImpl extends GithubAggregatorFactory {
+		override def create(tags:Seq[String], beginDate:Date) : GithubAggregator = {
+			new GithubAggregatorImpl(tags, beginDate)
+		}
 	}
 	
-	override def startActors() = {
+	class GithubAggregatorImpl(tags:Seq[String], beginDate:Date) extends SpecificAggregatorImpl(tags, beginDate) with GithubAggregator {
 		
+		override def preStart() = {
+			log.debug("Starting GithubAggregator")
+		}
+		
+		protected override def startActors() = {
+			
+		}
 	}
 }

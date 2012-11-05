@@ -10,26 +10,36 @@ import SpecificAggregator.SpecificAggregatorMessage
 import akka.actor.Actor
 import com.abbink.langpop.aggregate.Aggregator
 import akka.event.Logging
+import com.abbink.langpop.aggregate.Aggregator
+import com.abbink.langpop.aggregate.Aggregator
 
 object SpecificAggregator {
-	
 	sealed trait SpecificAggregatorMessage
 	case class Query(tag:String, date:Date) extends SpecificAggregatorMessage
 	case class AggregationResult(tag:String, date:Date, number:Long) extends SpecificAggregatorMessage
-	
 }
 
-case class TagDate(tag:String, date:Date)
-
-abstract class SpecificAggregator(tags:Seq[String], beginDate:Date) extends Actor {
-	import SpecificAggregator._
+trait SpecificAggregator extends Actor {
 	
-	protected var beginDate : Date = _
+	case class TagDate(tag:String, date:Date)
+	
+	protected def startActors()
+	
+	protected def query(tag:String, date:Date) : Aggregator.QueryResponse
+	
+	protected def processAggregationResult(tag:String, date:Date, number:Long)
+}
+
+/**
+ * this has to be moved out of the SpecificAggregatorComponent to be accessible for extension elsewhere
+ */
+abstract class SpecificAggregatorImpl(tags:Seq[String], beginDate:Date) extends SpecificAggregator {
+	
 	protected var store : ConcurrentMap[TagDate, Long] = new ConcurrentHashMap[TagDate, Long]
 	
-	val log = Logging(context.system, this)
+	protected val log = Logging(context.system, this)
 	
-	startCrawling()
+	startActors()
 	
 	override def preStart() = {
 		log.debug("Starting SpecificAggregator")
@@ -37,28 +47,24 @@ abstract class SpecificAggregator(tags:Seq[String], beginDate:Date) extends Acto
 	
 	def receive = {
 		case message : SpecificAggregatorMessage => message match {
-			case q:Query => query(q)
-			case r:AggregationResult => processAggregationResult(r)
+			case Query(tag, date) => sender ! query(tag, date)
+			case AggregationResult(tag, date, number) => processAggregationResult(tag, date, number)
 		}
 	}
 	
-	private def startCrawling() = {
-		startActors()
+	protected def query(tag:String, date:Date) : Aggregator.QueryResponse = {
+		val key = TagDate(tag, date)
+		val num : Option[Long] = store get key
+		Aggregator.QueryResponse(num)
 	}
 	
-	protected def startActors()
-	
-	private def query(query : Query) = {
-		import Aggregator._
-		
-		import query._
-		var key = TagDate(tag, date)
-		var num : Option[Long] = store get key
-		
-		sender ! Aggregator.QueryResponse(num)
+	protected def processAggregationResult(tag:String, date:Date, number:Long) {
+		val key = TagDate(tag, date)
+		store.put(key, number)
 	}
+}
+
+
+trait SpecificAggregatorComponent {
 	
-	private def processAggregationResult(r : AggregationResult) {
-		//TODO
-	}
 }
