@@ -48,6 +48,16 @@ trait AggregatorComponent {
 		protected var stackoverflowAggregatorRef : ActorRef = _
 		
 		println(" we have a NEW INSTANCE")
+		try {
+			throw new Exception()
+		} catch {
+			case e:Exception =>
+				var m:String = "-"+e.getMessage()
+				var s:String = "-"+e.getStackTraceString
+				println(m)
+				println(s)
+			case a => println("-we've got something else: "+a)
+		}
 		
 		def start() = {
 			val tagsFile = mergedConfig getString "langpop.aggregate.tagsfile"

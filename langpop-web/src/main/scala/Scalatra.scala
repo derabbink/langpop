@@ -13,6 +13,7 @@ import javax.servlet.ServletContext
 class Scalatra extends LifeCycle with ComponentRegistry {
 	override def init(context: ServletContext) {
 		
+		println(":initializing servlet")
 		aggregator.start()
 		
 		// Mount one or more servlets
