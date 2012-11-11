@@ -39,4 +39,3 @@ trait TagFileReader {
 			getLines.toList.filter(line => ""!=line)
 	}
 }
-

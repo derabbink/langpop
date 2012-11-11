@@ -12,7 +12,7 @@ class TagFileReaderSuite extends FunSuite {
 	
 	test("Loading tags from file") {
 		val expectedTags : Seq[String] = Seq("c#", "java", "scala")
-		val tagsfile = config.getString("langpop.aggregate.tagsfile")
+		val tagsfile = config.getString("test.langpop.aggregate.tagsfile")
 		
 		class TestTagReader extends TagFileReader
 		val ttr = new TestTagReader

@@ -23,8 +23,6 @@ trait SpecificAggregator extends Actor {
 	
 	case class TagDate(tag:String, date:Date)
 	
-	protected def startActors()
-	
 	protected def query(tag:String, date:Date) : Aggregator.QueryResponse
 	
 	protected def processAggregationResult(tag:String, date:Date, number:Long)
@@ -35,11 +33,9 @@ trait SpecificAggregator extends Actor {
  */
 abstract class SpecificAggregatorImpl(tags:Seq[String], beginDate:Date) extends SpecificAggregator {
 	
-	protected var store : ConcurrentMap[TagDate, Long] = new ConcurrentHashMap[TagDate, Long]
+	private var store : ConcurrentMap[TagDate, Long] = new ConcurrentHashMap[TagDate, Long]
 	
-	protected val log = Logging(context.system, this)
-	
-	startActors()
+	private val log = Logging(context.system, this)
 	
 	override def preStart() = {
 		log.debug("Starting SpecificAggregator")

@@ -4,6 +4,7 @@ import com.abbink.langpop.aggregate.specific.SpecificAggregator
 import java.util.Date
 import com.abbink.langpop.aggregate.specific.SingularSpecificAggregatorFactory
 import com.abbink.langpop.aggregate.specific.SpecificAggregatorImpl
+import akka.event.Logging
 
 trait StackoverflowAggregator extends SpecificAggregator {
 	
@@ -26,12 +27,10 @@ trait StackoverflowAggregatorComponent {
 	
 	class StackoverflowAggregatorImpl(tags:Seq[String], beginDate:Date) extends SpecificAggregatorImpl(tags, beginDate) with StackoverflowAggregator {
 		
+		private val log = Logging(context.system, this)
+		
 		override def preStart() = {
 			log.debug("Starting StackoverflowAggregator")
-		}
-		
-		protected override def startActors() = {
-			
 		}
 	}
 }

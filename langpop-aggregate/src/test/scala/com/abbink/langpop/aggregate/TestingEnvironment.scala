@@ -15,5 +15,5 @@ trait TestingEnvironment extends
 	val aggregator = AggregatorImpl //default
 	val combinedSpecificAggregatorFactory = CombinedSpecificAggregatorFactoryImpl //default
 	val githubAggregatorFactory = GithubAggregatorFactoryTestImpl //test implementation
-	val stackoverflowAggregatorFactory = StackoverflowAggregatorFactoryTestImpl
+	val stackoverflowAggregatorFactory = StackoverflowAggregatorFactoryTestImpl //test implementation
 }

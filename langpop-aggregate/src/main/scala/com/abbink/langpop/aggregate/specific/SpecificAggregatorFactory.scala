@@ -23,12 +23,10 @@ trait CombinedSpecificAggregatorFactoryComponent {
 	object CombinedSpecificAggregatorFactoryImpl extends CombinedSpecificAggregatorFactory {
 		
 		def createGithubAggregator(tags:Seq[String], beginDate:Date) : SpecificAggregator = {
-			println("  doing github 1")
 			githubAggregatorFactory.create(tags, beginDate)
 		}
 		
 		def createStackoverflowAggregator(tags:Seq[String], beginDate:Date) : SpecificAggregator = {
-			println("  doing stackoverflow 1")
 			stackoverflowAggregatorFactory.create(tags, beginDate)
 		}
 	}

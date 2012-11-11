@@ -10,6 +10,7 @@
   <classpathentry path="C:\Users\maarten\.ivy2\cache\ch.qos.logback\logback-classic\jars\logback-classic-1.0.7.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\ch.qos.logback\logback-core\jars\logback-core-1.0.7.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.slf4j\slf4j-api\jars\slf4j-api-1.6.6.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\joda-time\joda-time\jars\joda-time-2.1.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.scalatest\scalatest_2.9.2\jars\scalatest_2.9.2-1.8.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\com.typesafe.akka\akka-testkit\jars\akka-testkit-2.0.3.jar" kind="lib"></classpathentry>
   <classpathentry exported="true" path="/langpop-query" kind="src" combineaccessrules="false"></classpathentry>

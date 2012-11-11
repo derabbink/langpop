@@ -40,11 +40,11 @@ trait StackOverflowAuthComponent {
 		val config = ConfigFactory.load()
 		val mergedConfig = config.getConfig("langpop-web").withFallback(config)
 		
-		val client_id = mergedConfig.getString("langpop-web.auth.stackoverflow.client_id")
-		val client_secret = mergedConfig.getString("langpop-web.auth.stackoverflow.client_secret")
+		val client_id = mergedConfig.getString("langpop.web.auth.stackoverflow.client_id")
+		val client_secret = mergedConfig.getString("langpop.web.auth.stackoverflow.client_secret")
 		val scope = "no_expiry"
-		val redirect_uri = mergedConfig.getString("langpop-web.auth.stackoverflow.redirect_uri")
-		val credentialsFileName = mergedConfig.getString("langpop-web.auth.stackoverflow.credentialsFile")
+		val redirect_uri = mergedConfig.getString("langpop.web.auth.stackoverflow.redirect_uri")
+		val credentialsFileName = mergedConfig.getString("langpop.web.auth.stackoverflow.credentialsFile")
 		
 		var access_token : Option[String] = None
 		var expires : Option[Date] = None

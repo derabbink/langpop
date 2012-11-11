@@ -1,18 +1,43 @@
 # copy this file to application.conf
 # and edit 
 
-langpop-web {
-	auth {
-		stackoverflow {
-			client_id = 123 # your app's id
-			client_secret = "your own app's super secret client secred"
-			key = "your app's not so secret key"
-			redirect_uri = "http://localhost:8080/auth/stackoverflow/redirect"
-			
-			credentialsFile = "stackoverflow.auth.properties" # file will be created in execution path of server
+langpop {
+	web {
+		auth {
+			stackoverflow {
+				client_id = 123 # your app's id
+				client_secret = "your own app's super secret client secred"
+				key = "your app's not so secret key"
+				redirect_uri = "http://localhost:8080/auth/stackoverflow/redirect"
+				
+				credentialsFile = "stackoverflow.auth.properties" # file will be created in execution path of server
+			}
+			github {
+				# nothing yet
+			}
 		}
-		github {
-			# nothing yet
+	}
+}
+
+langpop-aggregate {
+	langpop {
+		aggregate {
+			#file is read from classpath
+			tagsfile = "/tagList.txt"
+			#unix time stamp
+			starttime = 1352645381
+		}
+	}
+	
+	akka {
+		event-handlers = ["akka.event.slf4j.Slf4jEventHandler"]
+		loglevel = DEBUG
+		log-config-on-start = off
+		actor.debug {
+			receive = on
+			autoreceive = on
+			lifecycle = on
+			event-stream = on
 		}
 	}
 }

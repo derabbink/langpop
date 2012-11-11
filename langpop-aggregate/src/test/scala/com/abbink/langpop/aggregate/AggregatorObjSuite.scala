@@ -2,21 +2,15 @@ package com.abbink.langpop.aggregate
 
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.FunSuite
-
 import com.typesafe.config.ConfigFactory
+import java.util.Date
 
 class AggregatorObjSuite extends FunSuite with BeforeAndAfterAll with TestingEnvironment {
 	
 	val config = ConfigFactory.load()
-	val format:DateFormat = new SimpleDateFormat("yyyy-MM-dd")
-	val startDate = format parse (config getString "langpop.aggregate.startdate") 
-	
-	override def beforeAll = {
-		aggregator.start()
-	}
+	val startDate = new Date(1000 * config.getLong("test.langpop.aggregate.starttime"))
 	
 	override def afterAll = {
 		aggregator.system.shutdown()

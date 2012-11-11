@@ -7,7 +7,7 @@
 		</encoder>
 	</appender>
 	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<file>./log/langpop-aggregate.test.log</file>
+		<file>./log/langpop-web.test.log</file>
 		<encoder>
 			<pattern>%d{HH:mm:ss.SSS} %X{sourceThread} %-5level %logger{36} - %msg%n</pattern>
 		</encoder>

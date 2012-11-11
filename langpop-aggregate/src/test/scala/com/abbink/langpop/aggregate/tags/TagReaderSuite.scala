@@ -24,7 +24,7 @@ class TagReaderSuite(_system: ActorSystem) extends TestKit(_system) with Implici
 	
 	"A TagReader actor" must {
 		"send back seq of 3 tags" in {
-			val tagsfile = config.getString("langpop.aggregate.tagsfile")
+			val tagsfile = config.getString("test.langpop.aggregate.tagsfile")
 			val ref = system.actorOf(Props[TagReader])
 			ref ! ReadFile(tagsfile)
 			
