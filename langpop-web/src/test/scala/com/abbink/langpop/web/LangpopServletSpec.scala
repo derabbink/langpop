@@ -7,9 +7,9 @@ class LangpopServletSpec extends ScalatraSpec { def is =
 	"GET /langpop on LangpopServlet"	^
 	"should return status 200"			! root200^
 										end
-
+	
 	addServlet(classOf[LangpopServlet], "/langpop/*")
-
+	
 	def root200 = get("/langpop") {
 		status must_== 200
 	}

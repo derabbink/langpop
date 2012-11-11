@@ -5,6 +5,9 @@ import com.abbink.langpop.aggregate.specific.stackoverflow.StackoverflowAggregat
 import com.abbink.langpop.aggregate.specific.github.GithubAggregator
 import com.abbink.langpop.aggregate.specific.stackoverflow.StackoverflowAggregator
 import com.abbink.langpop.aggregate.specific.CombinedSpecificAggregatorFactoryComponent
+import com.abbink.langpop.aggregate.specific.CombinedSpecificAggregatorFactory
+import com.abbink.langpop.aggregate.specific.github.GithubAggregatorFactory
+import com.abbink.langpop.aggregate.specific.stackoverflow.StackoverflowAggregatorFactory
 
 trait ComponentRegistry extends
 	AggregatorComponent with
@@ -12,8 +15,8 @@ trait ComponentRegistry extends
 	GithubAggregatorComponent with
 	StackoverflowAggregatorComponent
 {
-	val aggregator = AggregatorImpl
-	val combinedSpecificAggregatorFactory = CombinedSpecificAggregatorFactoryImpl
-	val githubAggregatorFactory = GithubAggregatorFactoryImpl
-	val stackoverflowAggregatorFactory = StackoverflowAggregatorFactoryImpl
+	def aggregator : Aggregator = AggregatorImpl
+	def combinedSpecificAggregatorFactory : CombinedSpecificAggregatorFactory = CombinedSpecificAggregatorFactoryImpl
+	def githubAggregatorFactory : GithubAggregatorFactory = GithubAggregatorFactoryImpl
+	def stackoverflowAggregatorFactory : StackoverflowAggregatorFactory = StackoverflowAggregatorFactoryImpl
 }

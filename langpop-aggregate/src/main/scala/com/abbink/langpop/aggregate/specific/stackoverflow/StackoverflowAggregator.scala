@@ -16,7 +16,7 @@ trait StackoverflowAggregatorFactory extends SingularSpecificAggregatorFactory {
 
 trait StackoverflowAggregatorComponent {
 	
-	val stackoverflowAggregatorFactory:StackoverflowAggregatorFactory
+	def stackoverflowAggregatorFactory:StackoverflowAggregatorFactory
 	
 	object StackoverflowAggregatorFactoryImpl extends StackoverflowAggregatorFactory {
 		override def create(tags:Seq[String], beginDate:Date) : StackoverflowAggregator = {

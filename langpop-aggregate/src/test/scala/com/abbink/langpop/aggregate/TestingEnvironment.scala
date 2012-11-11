@@ -12,8 +12,8 @@ trait TestingEnvironment extends
 	GithubAggregatorComponent with
 	StackoverflowAggregatorComponent
 {
-	val aggregator = AggregatorImpl //default
-	val combinedSpecificAggregatorFactory = CombinedSpecificAggregatorFactoryImpl //default
-	val githubAggregatorFactory = GithubAggregatorFactoryTestImpl //test implementation
-	val stackoverflowAggregatorFactory = StackoverflowAggregatorFactoryTestImpl //test implementation
+	def aggregator = AggregatorTestImpl //test implementation
+	def githubAggregatorFactory = GithubAggregatorFactoryTestImpl //test implementation
+	def stackoverflowAggregatorFactory = StackoverflowAggregatorFactoryTestImpl //test implementation
+	def combinedSpecificAggregatorFactory = CombinedSpecificAggregatorFactoryImpl //default, because individual specific aggregator factories are already test-specific
 }

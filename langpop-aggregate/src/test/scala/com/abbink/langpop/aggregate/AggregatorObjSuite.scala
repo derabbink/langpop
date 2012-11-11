@@ -7,14 +7,10 @@ import org.scalatest.FunSuite
 import com.typesafe.config.ConfigFactory
 import java.util.Date
 
-class AggregatorObjSuite extends FunSuite with BeforeAndAfterAll with TestingEnvironment {
+class AggregatorObjSuite extends FunSuite with TestingEnvironment {
 	
 	val config = ConfigFactory.load()
 	val startDate = new Date(1000 * config.getLong("test.langpop.aggregate.starttime"))
-	
-	override def afterAll = {
-		aggregator.system.shutdown()
-	}
 	
 	test("Retrieving empty result for tag 'foo'") {
 		val tag = "foo"

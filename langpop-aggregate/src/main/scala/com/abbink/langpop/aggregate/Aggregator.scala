@@ -29,7 +29,7 @@ trait Aggregator {
 trait AggregatorComponent {
 	this:	CombinedSpecificAggregatorFactoryComponent =>
 	
-	val aggregator:Aggregator
+	def aggregator:Aggregator
 	
 	object AggregatorImpl extends Aggregator {
 		
@@ -40,9 +40,9 @@ trait AggregatorComponent {
 		
 		var system:ActorSystem = ActorSystem("LangpopSystem", mergedConfig)
 		
-		protected var tags : Seq[String] = _
-		protected var githubAggregatorRef : ActorRef = _
-		protected var stackoverflowAggregatorRef : ActorRef = _
+		private var tags : Seq[String] = _
+		private var githubAggregatorRef : ActorRef = _
+		private var stackoverflowAggregatorRef : ActorRef = _
 		
 		start()
 		
@@ -51,14 +51,14 @@ trait AggregatorComponent {
 			startAggregators(tags, startTime)
 		}
 		
-		protected def readTags(tagsFile:String) : Seq[String] = {
+		private def readTags(tagsFile:String) : Seq[String] = {
 			val timeout:Timeout = Timeout(10 seconds)
 			var tagReaderRef = system.actorOf(Props[TagReader], name="TagReader")
 			var f:Future[Seq[String]] = ask(tagReaderRef, TagReader.ReadFile(tagsFile))(timeout).mapTo[Seq[String]]
 			Await.result[Seq[String]](f, timeout.duration)
 		}
 		
-		protected def startAggregators(tags:Seq[String], beginDate:Date) {
+		private def startAggregators(tags:Seq[String], beginDate:Date) {
 			//this may happen twice. the second time it will just silently fail
 			try{
 				githubAggregatorRef = system.actorOf(Props(combinedSpecificAggregatorFactory.createGithubAggregator(tags, beginDate)), name = "GithubAggregator")

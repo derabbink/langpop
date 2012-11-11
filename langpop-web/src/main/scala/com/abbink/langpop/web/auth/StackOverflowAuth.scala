@@ -33,7 +33,7 @@ trait StackOverflowAuth {
 }
 
 trait StackOverflowAuthComponent {
-	val stackOverflowAuth:StackOverflowAuth
+	def stackOverflowAuth:StackOverflowAuth
 	
 	object StackOverflowAuthImpl extends StackOverflowAuth {
 		
@@ -163,7 +163,7 @@ trait StackOverflowAuthComponent {
 					val props = new Properties()
 					props.setProperty("access_token", accessToken.get);
 					expires match {
-						case Some(date) => props.setProperty("expires", (date.getTime()/1000).toString())
+						case Some(date) => props.setProperty("expires", (date.getTime()/1000).asInstanceOf[Long].toString())
 						case _ => //ignore
 					}
 					val fs : OutputStream = new FileOutputStream(credentialsFileName);

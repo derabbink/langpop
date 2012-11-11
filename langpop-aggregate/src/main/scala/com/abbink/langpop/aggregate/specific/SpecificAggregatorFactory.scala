@@ -18,7 +18,7 @@ trait SingularSpecificAggregatorFactory {
 trait CombinedSpecificAggregatorFactoryComponent {
 	this :	GithubAggregatorComponent with
 			StackoverflowAggregatorComponent =>
-	val combinedSpecificAggregatorFactory:CombinedSpecificAggregatorFactory
+	def combinedSpecificAggregatorFactory:CombinedSpecificAggregatorFactory
 	
 	object CombinedSpecificAggregatorFactoryImpl extends CombinedSpecificAggregatorFactory {
 		

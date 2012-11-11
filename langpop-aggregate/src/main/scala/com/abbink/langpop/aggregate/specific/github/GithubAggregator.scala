@@ -16,7 +16,7 @@ trait GithubAggregatorFactory extends SingularSpecificAggregatorFactory {
 
 trait GithubAggregatorComponent {
 	
-	val githubAggregatorFactory:GithubAggregatorFactory
+	def githubAggregatorFactory:GithubAggregatorFactory
 	
 	object GithubAggregatorFactoryImpl extends GithubAggregatorFactory {
 		override def create(tags:Seq[String], beginDate:Date) : GithubAggregator = {
