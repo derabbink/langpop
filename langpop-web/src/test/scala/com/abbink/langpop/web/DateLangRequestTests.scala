@@ -19,6 +19,8 @@ class DateLangRequestTests extends ScalatraSuite with FunSuite with TestingEnvir
 //		aggregator.system.shutdown()
 //	}
 	
+	
+	
 	test("get date/language") {
 		println(":get date/language")
 		get("/langpop/2012-10-19/scala") {

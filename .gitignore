@@ -15,3 +15,7 @@ project/plugins/project/
 # eclipse specific
 bin/*
 .cache
+
+# sensitive information
+stackoverflow.auth.properties
+langpop-web/src/main/resources/application.conf

@@ -1,9 +1,11 @@
 package com.abbink.langpop.web
 
 import com.abbink.langpop.aggregate.{ComponentRegistry => AggregatorComponentRegistry}
+import com.abbink.langpop.web.auth.StackOverflowAuthComponent
 
 trait ComponentRegistry extends
-	AggregatorComponentRegistry
+	AggregatorComponentRegistry with
+	StackOverflowAuthComponent
 {
-	
+	val stackOverflowAuth = StackOverflowAuthImpl
 }

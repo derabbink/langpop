@@ -13,8 +13,11 @@ class LangpopServlet extends ScalatraServlet with ScalateSupport with ComponentR
 	get("/") {
 		<html>
 			<body>
-				<h1>Hello, world!</h1>
-				Say <a href="hello-scalate">hello to Scalate</a>.
+				<h1>langpop</h1>
+				<ul>
+					<li>Issue query: e.g. <a href="/langpop/2012-11-10/scala">/langpop/2012-11-10/scala</a></li>
+					<li>check data source login status <a href="/auth">here</a></li>
+				</ul>
 			</body>
 		</html>
 	}

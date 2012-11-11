@@ -2,6 +2,7 @@ import org.scalatra.LifeCycle
 
 import com.abbink.langpop.web.ComponentRegistry
 import com.abbink.langpop.web.LangpopServlet
+import com.abbink.langpop.web.AuthServlet
 
 import javax.servlet.ServletContext
 
@@ -18,5 +19,6 @@ class Scalatra extends LifeCycle with ComponentRegistry {
 		
 		// Mount one or more servlets
 		context.mount(new LangpopServlet, "/langpop/*")
+		context.mount(new AuthServlet, "/auth/*")
 	}
 }
