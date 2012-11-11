@@ -2,16 +2,15 @@ package com.abbink.langpop.aggregate.specific.stackoverflow
 
 import com.abbink.langpop.aggregate.specific.SpecificAggregatorImpl
 import com.abbink.langpop.aggregate.specific.github.GithubAggregator
-import java.util.Date
 import akka.event.Logging
 
 object StackoverflowAggregatorFactoryTestImpl extends StackoverflowAggregatorFactory {
-	override def create(tags:Seq[String], beginDate:Date) : GithubAggregator = {
-		new GithubAggregatorTestImpl(tags, beginDate)
+	override def create(tags:Seq[String], beginTimestamp:Long) : GithubAggregator = {
+		new GithubAggregatorTestImpl(tags, beginTimestamp)
 	}
 }
 
-class GithubAggregatorTestImpl(tags:Seq[String], beginDate:Date) extends SpecificAggregatorImpl(tags, beginDate) with GithubAggregator {
+class GithubAggregatorTestImpl(tags:Seq[String], beginTimestamp:Long) extends SpecificAggregatorImpl(tags, beginTimestamp) with GithubAggregator {
 	
 	private val log = Logging(context.system, this)
 	

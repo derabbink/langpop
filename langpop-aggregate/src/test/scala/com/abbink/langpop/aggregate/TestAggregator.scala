@@ -1,13 +1,12 @@
 package com.abbink.langpop.aggregate
-import java.util.Date
 
 object AggregatorTestImpl extends Aggregator {
 	
-	def retrieve(tag: String, date: Date) : CombinedResponse = {
-		val git = 0
-		val stack = 0
+	def retrieve(tags:Set[String], timestamp:Long) : CombinedResponse = {
+		val git = Map[String, Long]()
+		val stack = Map[String, Long]()
 		
-		CombinedResponse(tag, date, git, stack)
+		CombinedResponse(tags, timestamp, git, stack)
 	}
 	
 }

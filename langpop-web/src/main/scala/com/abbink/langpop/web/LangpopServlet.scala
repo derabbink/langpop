@@ -7,6 +7,7 @@ import scala.util.control.Exception.catching
 import java.text.ParseException
 import org.scalatra.scalate.ScalateSupport
 import org.scalatra.ScalatraServlet
+import com.abbink.langpop.aggregate.CombinedResponse
 
 class LangpopServlet extends ScalatraServlet with ScalateSupport with ComponentRegistry {
 	
@@ -15,7 +16,7 @@ class LangpopServlet extends ScalatraServlet with ScalateSupport with ComponentR
 			<body>
 				<h1>langpop</h1>
 				<ul>
-					<li>Issue query: e.g. <a href="/langpop/2012-11-10/scala">/langpop/2012-11-10/scala</a></li>
+					<li>Issue query: e.g. <a href="/langpop/1352645381/scala">/langpop/1352645381/scala</a></li>
 					<li>check data source login status <a href="/auth">here</a></li>
 				</ul>
 			</body>
@@ -23,35 +24,57 @@ class LangpopServlet extends ScalatraServlet with ScalateSupport with ComponentR
 	}
 	
 	get("/*/*") {
-		val format:DateFormat = new SimpleDateFormat("yyyy-MM-dd")
-		var date:Option[Date] = catching(classOf[ParseException]) opt { format.parse(multiParams("splat")(0)) }
-		val lang:String = multiParams("splat")(1)
-		
-		var jdate:Date = date match {
-			case Some(d) => d
-			case None => halt(404)
-		}
-		
-		if (lang isEmpty)
+		val splat = multiParams("splat")
+		if (splat.size < 2)
 			halt(404)
 		
-		try {
-			println("retrieving "+lang+", "+date)
-			aggregator.retrieve(lang, jdate)
+		val timestamp:Option[Long] = catching(classOf[NumberFormatException]) opt { splat(0).toLong }
+		val langs:Set[String] = splat.tail.toSet
+		
+		if (timestamp == None || langs.size == 0)
+			halt(404)
+		
+		val actualTimestamp:Long = timestamp.get
+		contentType = "application/json"
+		toJson(aggregator.retrieve(langs, actualTimestamp))
+	}
+	
+	private def toJson(data:CombinedResponse) : String = {
+		val sb:StringBuilder = new StringBuilder()
+		sb append "{"
+		
+		sb append "timestamp:"
+		sb append data.timestamp
+		sb append ","
+		
+		sb append "github:{"
+		sb append (popularityList(data.github))
+		sb append "},"
+		
+		sb append "stackoverflow:{"
+		sb append (popularityList(data.stackoverflow))
+		sb append "}"
+		
+		sb append "}"
+		sb.toString()
+	}
+	
+	private def popularityList(popularities: Map[String, Long]) : String = {
+		val sb:StringBuilder = new StringBuilder()
+		//TODO write as fold
+		var comma = false
+		for ((tag, number) <- popularities) {
+			if (comma)
+				sb append ","
+			else
+				comma = true
+			sb append """"""" //literal string containing "
+			sb append tag
+			sb append """":"""" // ":"
+			sb append number
+			sb append """""""
 		}
-		catch {
-			case e:Exception =>
-				var m : String = " "+ e.getMessage()
-				var t : String = " "+ e.getStackTraceString
-				println(m)
-				println(t)
-			case a => println("something else "+a)
-		}
-		<html>
-			<body>
-				<h1>{format format jdate}/{lang}</h1>
-			</body>
-		</html>
+		sb.toString()
 	}
 	
 	notFound {

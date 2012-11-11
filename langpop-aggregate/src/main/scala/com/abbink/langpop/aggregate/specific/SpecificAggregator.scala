@@ -1,7 +1,6 @@
 package com.abbink.langpop.aggregate.specific
 
 import java.util.concurrent.ConcurrentHashMap
-import java.util.Date
 import scala.collection.JavaConversions.asScalaConcurrentMap
 import scala.collection.mutable.ConcurrentMap
 import SpecificAggregator.AggregationResult
@@ -12,28 +11,29 @@ import com.abbink.langpop.aggregate.Aggregator
 import akka.event.Logging
 import com.abbink.langpop.aggregate.Aggregator
 import com.abbink.langpop.aggregate.Aggregator
+import java.util.concurrent.ConcurrentSkipListMap
+import java.util.SortedMap
+import java.util.NavigableMap
 
 object SpecificAggregator {
 	sealed trait SpecificAggregatorMessage
-	case class Query(tag:String, date:Date) extends SpecificAggregatorMessage
-	case class AggregationResult(tag:String, date:Date, number:Long) extends SpecificAggregatorMessage
+	case class Query(tags:Set[String], timestamp:Long) extends SpecificAggregatorMessage
+	case class AggregationResult(tag:String, timestamp:Long, number:Long) extends SpecificAggregatorMessage
 }
 
 trait SpecificAggregator extends Actor {
 	
-	case class TagDate(tag:String, date:Date)
+	protected def query(tags:Set[String], timestamp:Long) : Aggregator.QueryResponse
 	
-	protected def query(tag:String, date:Date) : Aggregator.QueryResponse
-	
-	protected def processAggregationResult(tag:String, date:Date, number:Long)
+	protected def processAggregationResult(tag:String, timestamp:Long, number:Long)
 }
 
 /**
  * this has to be moved out of the SpecificAggregatorComponent to be accessible for extension elsewhere
  */
-abstract class SpecificAggregatorImpl(tags:Seq[String], beginDate:Date) extends SpecificAggregator {
+abstract class SpecificAggregatorImpl(val tags:Seq[String], val beginTimestamp:Long) extends SpecificAggregator {
 	
-	private var store : ConcurrentMap[TagDate, Long] = new ConcurrentHashMap[TagDate, Long]
+	private var store : NavigableMap[Long, Map[String, Long]] = new ConcurrentSkipListMap[Long, Map[String, Long]]
 	
 	private val log = Logging(context.system, this)
 	
@@ -43,20 +43,46 @@ abstract class SpecificAggregatorImpl(tags:Seq[String], beginDate:Date) extends 
 	
 	def receive = {
 		case message : SpecificAggregatorMessage => message match {
-			case Query(tag, date) => sender ! query(tag, date)
-			case AggregationResult(tag, date, number) => processAggregationResult(tag, date, number)
+			case Query(tags, timestamp) => sender ! query(tags, timestamp)
+			case AggregationResult(tag, timestamp, number) => processAggregationResult(tag, timestamp, number)
 		}
 	}
 	
-	protected def query(tag:String, date:Date) : Aggregator.QueryResponse = {
-		val key = TagDate(tag, date)
-		val num : Option[Long] = store get key
-		Aggregator.QueryResponse(num)
+	protected def query(tags:Set[String], timestamp:Long) : Aggregator.QueryResponse = {
+		val answers:Map[String, Long] = queryRecursive(tags, timestamp)
+		Aggregator.QueryResponse(answers)
 	}
 	
-	protected def processAggregationResult(tag:String, date:Date, number:Long) {
-		val key = TagDate(tag, date)
-		store.put(key, number)
+	/**
+	 * recursive lookup of tags in virtual time frames
+	 */
+	private def queryRecursive(tags:Set[String], timestamp:Long) : Map[String, Long] = {
+		if (timestamp > beginTimestamp) {
+			val floor:java.util.Map.Entry[Long, Map[String, Long]] = store.floorEntry(timestamp)
+			if (floor != null) {
+				val found:Map[String, Long] = floor.getValue() filter (pair => tags contains (pair _1))
+				val remaining = tags -- (found map (pair => pair _1))
+				found ++ queryRecursive(remaining, floor.getKey()-1)
+			}
+			else
+				Map()
+		}
+		else
+			Map()
+	}
+	
+	protected def processAggregationResult(tag:String, timestamp:Long, number:Long) {
+		var writeBack = false
+		var metrics:Map[String, Long] = store.get(timestamp) match {
+			case null => writeBack = true
+					Map()
+			case m => m
+		}
+		
+		metrics += (tag -> number)
+		
+		if (writeBack)
+			store.put(timestamp, metrics)
 	}
 }
 

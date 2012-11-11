@@ -1,7 +1,6 @@
 package com.abbink.langpop.aggregate.specific.github
 
 import com.abbink.langpop.aggregate.specific.SpecificAggregator
-import java.util.Date
 import com.abbink.langpop.aggregate.specific.SingularSpecificAggregatorFactory
 import com.abbink.langpop.aggregate.specific.SpecificAggregatorImpl
 import akka.event.Logging
@@ -11,7 +10,7 @@ trait GithubAggregator extends SpecificAggregator {
 }
 
 trait GithubAggregatorFactory extends SingularSpecificAggregatorFactory {
-	override def create(tags:Seq[String], beginDate:Date) : SpecificAggregator	
+	override def create(tags:Seq[String], beginTimestamp:Long) : SpecificAggregator	
 }
 
 trait GithubAggregatorComponent {
@@ -19,13 +18,12 @@ trait GithubAggregatorComponent {
 	def githubAggregatorFactory:GithubAggregatorFactory
 	
 	object GithubAggregatorFactoryImpl extends GithubAggregatorFactory {
-		override def create(tags:Seq[String], beginDate:Date) : GithubAggregator = {
-			println("  doing github 2")
-			new GithubAggregatorImpl(tags, beginDate)
+		override def create(tags:Seq[String], beginTimestamp:Long) : GithubAggregator = {
+			new GithubAggregatorImpl(tags, beginTimestamp)
 		}
 	}
 	
-	class GithubAggregatorImpl(tags:Seq[String], beginDate:Date) extends SpecificAggregatorImpl(tags, beginDate) with GithubAggregator {
+	class GithubAggregatorImpl(tags:Seq[String], beginTimestamp:Long) extends SpecificAggregatorImpl(tags, beginTimestamp) with GithubAggregator {
 		
 		private val log = Logging(context.system, this)
 		

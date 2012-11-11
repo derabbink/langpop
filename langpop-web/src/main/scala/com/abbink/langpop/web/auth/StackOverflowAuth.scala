@@ -47,7 +47,7 @@ trait StackOverflowAuthComponent {
 		val credentialsFileName = mergedConfig.getString("langpop.web.auth.stackoverflow.credentialsFile")
 		
 		var access_token : Option[String] = None
-		var expires : Option[Date] = None
+		var expires : Option[Long] = None
 		readAuth()
 		
 		def isAuthenticated() = {
@@ -55,7 +55,7 @@ trait StackOverflowAuthComponent {
 				case None => false
 				case Some(t) => expires match {
 					case None => true
-					case Some(e) => e after new Date()
+					case Some(e) => e > (new Date().getTime()/1000).toLong
 				}
 			}
 		}
@@ -70,7 +70,7 @@ trait StackOverflowAuthComponent {
 		}
 		
 		/**
-		 * reads access token and expiration date from properties file
+		 * reads access token and expiration timestamp from properties file
 		 */
 		private def readAuth() : Unit = {
 			access_token = None
@@ -87,7 +87,7 @@ trait StackOverflowAuthComponent {
 					case null => None
 					case x => Some(x)
 				}
-				expires = exp match {case null => None case x => Some(new Date(1000 * (x.toLong)))}
+				expires = exp match {case null => None case x => Some(x.toLong)}
 			}
 			catch {
 				case e => //TODO
@@ -128,7 +128,7 @@ trait StackOverflowAuthComponent {
 			
 			if (response.getStatusLine().getStatusCode() != 400) {
 				var access_token : Option[String] = None
-				var expires : Option[Date] = None
+				var expires : Option[Long] = None
 				
 				val entity = response.getEntity()
 				val entityContent = EntityUtils.toString(entity)
@@ -143,7 +143,7 @@ trait StackOverflowAuthComponent {
 					val pair : NameValuePair = iter.next()
 					pair.getName() match {
 						case "access_token" => access_token = Some(pair.getValue())
-						case "expires" => expires = Some(new Date(1000 * (pair.getValue().toLong)))
+						case "expires" => expires = Some(pair.getValue().toLong)
 						case _ => //ignore
 					}
 				}
@@ -152,7 +152,7 @@ trait StackOverflowAuthComponent {
 			}
 		}
 		
-		private def writeAuth(accessToken : Option[String], expires : Option[Date]) = {
+		private def writeAuth(accessToken : Option[String], expires : Option[Long]) = {
 			if (accessToken == None) {
 				clearAuth
 			}
@@ -163,7 +163,7 @@ trait StackOverflowAuthComponent {
 					val props = new Properties()
 					props.setProperty("access_token", accessToken.get);
 					expires match {
-						case Some(date) => props.setProperty("expires", (date.getTime()/1000).asInstanceOf[Long].toString())
+						case Some(timestamp) => props.setProperty("expires", timestamp.toString())
 						case _ => //ignore
 					}
 					val fs : OutputStream = new FileOutputStream(credentialsFileName);
