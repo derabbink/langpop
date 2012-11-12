@@ -36,7 +36,7 @@ class LangpopServlet extends ScalatraServlet with ScalateSupport with ComponentR
 		
 		val actualTimestamp:Long = timestamp.get
 		contentType = "application/json"
-		toJson(aggregator.retrieve(langs, actualTimestamp))
+		toJson(aggregate.aggregator.retrieve(langs, actualTimestamp))
 	}
 	
 	private def toJson(data:CombinedResponse) : String = {
