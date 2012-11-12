@@ -58,6 +58,8 @@ This project was an assignment of the course [Functional Programming][8] at my M
 The web framework used is [Scalatra][9].<br/>
 Actors are implemented with [Akka][10].
 
+The project was developed with [Scala IDE for Eclipse][11], and Eclipse `.project` files (though purposely included in this repo) were generated using the [sbteclipse][12] plugin.
+
   [1]: http://stackoverflow.com
   [2]: http://github.com
   [3]: http://www.scala-lang.org
@@ -68,3 +70,5 @@ Actors are implemented with [Akka][10].
   [8]: http://swerl.tudelft.nl/bin/view/Main/FunctionalProgrammingCourse
   [9]: http://www.scalatra.org
   [10]: http://akka.io
+  [11]: http://scala-ide.org
+  [12]: https://github.com/typesafehub/sbteclipse
