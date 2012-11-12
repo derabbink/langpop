@@ -4,6 +4,7 @@ import akka.actor.Actor
 import akka.event.Logging
 import javax.management.Query
 import com.abbink.langpop.query.specific.SpecificEventExtractor.SpecificEventExtractorMessage
+import akka.actor.ActorRef
 
 object SpecificEventExtractor {
 	sealed trait SpecificEventExtractorMessage
@@ -18,9 +19,9 @@ trait SpecificEventExtractor extends Actor {
 }
 
 /**
- * this has to be moved out of the SpecificEventExtractorComponent to be accessible for extension elsewhere
- */
-abstract class SpecificEventExtractorImpl extends SpecificEventExtractor {
+  * this has to be moved out of the SpecificEventExtractorComponent to be accessible for extension elsewhere
+  */
+abstract class SpecificEventExtractorImpl(val aggregator:ActorRef) extends SpecificEventExtractor {
 	
 	private val log = Logging(context.system, this)
 	

@@ -70,8 +70,8 @@ trait StackOverflowAuthComponent {
 		}
 		
 		/**
-		 * reads access token and expiration timestamp from properties file
-		 */
+		  * reads access token and expiration timestamp from properties file
+		  */
 		private def readAuth() : Unit = {
 			access_token = None
 			expires = None
@@ -96,8 +96,8 @@ trait StackOverflowAuthComponent {
 		}
 		
 		/**
-		 * clears all auth data (i.e. signs out)
-		 */
+		  * clears all auth data (i.e. signs out)
+		  */
 		def clearAuth() = {
 			access_token = None
 			expires = None

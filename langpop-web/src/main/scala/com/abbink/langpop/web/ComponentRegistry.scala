@@ -13,13 +13,13 @@ trait ComponentRegistry extends
 }
 
 /**
- * langpop-aggregate
- */
+  * langpop-aggregate
+  */
 trait Aggregate extends AggregatorComponentRegistry
 
 /**
- * Gathering dependencies here
- */
+  * Gathering dependencies here
+  */
 trait DependencyComponent {
 	def aggregate:Aggregate
 	

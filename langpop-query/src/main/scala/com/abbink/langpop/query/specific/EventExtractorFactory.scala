@@ -2,14 +2,15 @@ package com.abbink.langpop.query.specific
 
 import com.abbink.langpop.query.specific.github.GithubEventExtractorComponent
 import com.abbink.langpop.query.specific.stackoverflow.StackoverflowEventExtractorComponent
+import akka.actor.ActorRef
 
 trait CombinedSpecificEventExtractorFactory {
-	def createGithub(beginTimestamp:Long) : SpecificEventExtractor
-	def createStackoverflow(beginTimestamp:Long) : SpecificEventExtractor
+	def createGithub(aggregator:ActorRef, beginTimestamp:Long) : SpecificEventExtractor
+	def createStackoverflow(aggregator:ActorRef, beginTimestamp:Long) : SpecificEventExtractor
 }
 
 trait SingularSpecificEventExtractorFactory {
-	def create(beginTimestamp:Long) : SpecificEventExtractor
+	def create(aggregator:ActorRef, beginTimestamp:Long) : SpecificEventExtractor
 }
 
 trait CombinedSpecificEventExtractorFactoryComponent {
@@ -20,12 +21,12 @@ trait CombinedSpecificEventExtractorFactoryComponent {
 	
 	object CombinedSpecificEventExtractorFactoryImpl extends CombinedSpecificEventExtractorFactory {
 		
-		def createGithub(beginTimestamp:Long) : SpecificEventExtractor = {
-			githubEventExtractorFactory.create(beginTimestamp)
+		def createGithub(aggregator:ActorRef, beginTimestamp:Long) : SpecificEventExtractor = {
+			githubEventExtractorFactory.create(aggregator, beginTimestamp)
 		}
 		
-		def createStackoverflow(beginTimestamp:Long) : SpecificEventExtractor = {
-			stackoverflowEventExtractorFactory.create(beginTimestamp)
+		def createStackoverflow(aggregator:ActorRef, beginTimestamp:Long) : SpecificEventExtractor = {
+			stackoverflowEventExtractorFactory.create(aggregator, beginTimestamp)
 		}
 	}
 }

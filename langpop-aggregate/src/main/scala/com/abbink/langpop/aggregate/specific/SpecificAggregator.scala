@@ -32,8 +32,8 @@ trait SpecificAggregator extends Actor {
 }
 
 /**
- * this has to be moved out of the SpecificAggregatorComponent to be accessible for extension elsewhere
- */
+  * this has to be moved out of the SpecificAggregatorComponent to be accessible for extension elsewhere
+  */
 abstract class SpecificAggregatorImpl(val tags:Seq[String], val beginTimestamp:Long) extends SpecificAggregator {
 	
 	private var store : NavigableMap[Long, Map[String, Long]] = new ConcurrentSkipListMap[Long, Map[String, Long]]
@@ -59,8 +59,8 @@ abstract class SpecificAggregatorImpl(val tags:Seq[String], val beginTimestamp:L
 	}
 	
 	/**
-	 * recursive lookup of tags in virtual time frames
-	 */
+	  * recursive lookup of tags in virtual time frames
+	  */
 	private def queryRecursive(tags:Set[String], timestamp:Long) : Map[String, Long] = {
 		if (timestamp > beginTimestamp) {
 			val floor:java.util.Map.Entry[Long, Map[String, Long]] = store.floorEntry(timestamp)
