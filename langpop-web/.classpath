@@ -10,7 +10,6 @@
   <classpathentry path="C:\Users\maarten\.ivy2\cache\ch.qos.logback\logback-classic\jars\logback-classic-1.0.7.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\ch.qos.logback\logback-core\jars\logback-core-1.0.7.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.slf4j\slf4j-api\jars\slf4j-api-1.6.6.jar" kind="lib"></classpathentry>
-  <classpathentry path="C:\Users\maarten\.ivy2\cache\joda-time\joda-time\jars\joda-time-2.1.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.scalatra\scalatra\jars\scalatra-2.1.1.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.clapper\grizzled-slf4j_2.9.2\jars\grizzled-slf4j_2.9.2-0.6.9.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\io.backchat.rl\rl_2.9.2\jars\rl_2.9.2-0.3.2.jar" kind="lib"></classpathentry>
@@ -44,9 +43,6 @@
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.scalatest\scalatest_2.9.2\jars\scalatest_2.9.2-1.8.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\junit\junit\jars\junit-4.10.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.hamcrest\hamcrest-core\jars\hamcrest-core-1.1.jar" kind="lib"></classpathentry>
-  <classpathentry exported="true" path="/langpop-query" kind="src" combineaccessrules="false"></classpathentry>
-  <classpathentry exported="true" path="/langpop-query-github" kind="src" combineaccessrules="false"></classpathentry>
-  <classpathentry exported="true" path="/langpop-query-stackoverflow" kind="src" combineaccessrules="false"></classpathentry>
   <classpathentry exported="true" path="/langpop-aggregate" kind="src" combineaccessrules="false"></classpathentry>
   <classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"></classpathentry>
   <classpathentry path="bin" kind="output"></classpathentry>

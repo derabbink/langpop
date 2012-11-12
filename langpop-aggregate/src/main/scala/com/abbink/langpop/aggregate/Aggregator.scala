@@ -58,11 +58,11 @@ trait AggregatorComponent {
 		private def startAggregators(tags:Seq[String], beginTimestamp:Long) {
 			//this may happen twice. the second time it will just silently fail
 			try{
-				githubAggregatorRef = system.actorOf(Props(combinedSpecificAggregatorFactory.createGithubAggregator(tags, beginTimestamp)), name = "GithubAggregator")
+				githubAggregatorRef = system.actorOf(Props(combinedSpecificAggregatorFactory.createGithub(tags, beginTimestamp)), name = "GithubAggregator")
 			}
 			
 			try {
-				stackoverflowAggregatorRef = system.actorOf(Props(combinedSpecificAggregatorFactory.createStackoverflowAggregator(tags, beginTimestamp)), name = "StackoverflowAggregator")
+				stackoverflowAggregatorRef = system.actorOf(Props(combinedSpecificAggregatorFactory.createStackoverflow(tags, beginTimestamp)), name = "StackoverflowAggregator")
 			}
 		}
 		

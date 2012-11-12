@@ -1,0 +1,18 @@
+package com.abbink.langpop.query
+
+import com.abbink.langpop.query.specific.CombinedSpecificEventExtractorFactoryComponent
+import com.abbink.langpop.query.specific.CombinedSpecificEventExtractorFactory
+import com.abbink.langpop.query.specific.github.GithubEventExtractorFactory
+import com.abbink.langpop.query.specific.stackoverflow.StackoverflowEventExtractorFactory
+import com.abbink.langpop.query.specific.github.GithubEventExtractorComponent
+import com.abbink.langpop.query.specific.stackoverflow.StackoverflowEventExtractorComponent
+
+trait ComponentRegistry extends
+	CombinedSpecificEventExtractorFactoryComponent with
+	GithubEventExtractorComponent with
+	StackoverflowEventExtractorComponent
+{
+	def combinedSpecificEventExtractorFactory : CombinedSpecificEventExtractorFactory = CombinedSpecificEventExtractorFactoryImpl
+	def githubEventExtractorFactory : GithubEventExtractorFactory = GithubEventExtractorFactoryImpl
+	def stackoverflowEventExtractorFactory : StackoverflowEventExtractorFactory = StackoverflowEventExtractorFactoryImpl
+}

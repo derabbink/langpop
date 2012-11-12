@@ -6,8 +6,8 @@ import com.abbink.langpop.aggregate.specific.stackoverflow.StackoverflowAggregat
 import com.abbink.langpop.aggregate.specific.github.GithubAggregatorFactory
 
 trait CombinedSpecificAggregatorFactory {
-	def createGithubAggregator(tags:Seq[String], beginTimestamp:Long) : SpecificAggregator
-	def createStackoverflowAggregator(tags:Seq[String], beginTimestamp:Long) : SpecificAggregator
+	def createGithub(tags:Seq[String], beginTimestamp:Long) : SpecificAggregator
+	def createStackoverflow(tags:Seq[String], beginTimestamp:Long) : SpecificAggregator
 }
 
 trait SingularSpecificAggregatorFactory {
@@ -21,11 +21,11 @@ trait CombinedSpecificAggregatorFactoryComponent {
 	
 	object CombinedSpecificAggregatorFactoryImpl extends CombinedSpecificAggregatorFactory {
 		
-		def createGithubAggregator(tags:Seq[String], beginTimestamp:Long) : SpecificAggregator = {
+		def createGithub(tags:Seq[String], beginTimestamp:Long) : SpecificAggregator = {
 			githubAggregatorFactory.create(tags, beginTimestamp)
 		}
 		
-		def createStackoverflowAggregator(tags:Seq[String], beginTimestamp:Long) : SpecificAggregator = {
+		def createStackoverflow(tags:Seq[String], beginTimestamp:Long) : SpecificAggregator = {
 			stackoverflowAggregatorFactory.create(tags, beginTimestamp)
 		}
 	}
