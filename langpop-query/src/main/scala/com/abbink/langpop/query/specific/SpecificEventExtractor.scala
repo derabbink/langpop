@@ -8,6 +8,9 @@ import com.abbink.langpop.query.specific.SpecificEventExtractor.SpecificEventExt
 object SpecificEventExtractor {
 	sealed trait SpecificEventExtractorMessage
 	//TODO define messages a SpecificEventExtractor actor can take
+	
+	sealed trait SpecificEventExtractorResponse
+	case class AggregationResult(tag:String, timestamp:Long, number:Long) extends SpecificEventExtractorResponse
 }
 
 trait SpecificEventExtractor extends Actor {
@@ -27,7 +30,7 @@ abstract class SpecificEventExtractorImpl extends SpecificEventExtractor {
 	
 	def receive = {
 		case message : SpecificEventExtractorMessage => message match {
-			case _ => //TODO implement useful behavior
+			case _ => //no messages to implement
 		}
 	}
 }

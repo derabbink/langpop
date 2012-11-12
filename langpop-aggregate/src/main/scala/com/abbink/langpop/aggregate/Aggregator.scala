@@ -16,7 +16,7 @@ import akka.util.Timeout
 
 object Aggregator {
 	sealed trait AggregatorMessage
-	case class QueryResponse(values:Map[String, Long]) extends AggregatorMessage
+	//no messages that Aggregator can take are defined here
 }
 
 trait Aggregator {
@@ -74,8 +74,8 @@ trait AggregatorComponent {
 			val f2 = ask(stackoverflowAggregatorRef, msg)(timeout)
 			//f1.flatMap(g => f2.flatMap(s => (g,s))).flatMap(r => CombinedResponse(tag, date, r._1.value.getOrElse[Long](0), r._2.value.getOrElse[Long](0))) //this doesn't work and is unreadable
 			val f3 = for {
-				github <- f1.mapTo[Aggregator.QueryResponse]
-				stackoverflow <- f2.mapTo[Aggregator.QueryResponse]
+				github <- f1.mapTo[SpecificAggregator.QueryResponse]
+				stackoverflow <- f2.mapTo[SpecificAggregator.QueryResponse]
 			} yield (github.values, stackoverflow.values)
 			
 			val (git, stack) = Await.result(f3, timeout.duration).asInstanceOf[(Map[String, Long], Map[String, Long])]

@@ -3,7 +3,6 @@ package com.abbink.langpop.aggregate.specific
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions.asScalaConcurrentMap
 import scala.collection.mutable.ConcurrentMap
-import SpecificAggregator.AggregationResult
 import SpecificAggregator.Query
 import SpecificAggregator.SpecificAggregatorMessage
 import akka.actor.Actor
@@ -14,16 +13,20 @@ import com.abbink.langpop.aggregate.Aggregator
 import java.util.concurrent.ConcurrentSkipListMap
 import java.util.SortedMap
 import java.util.NavigableMap
+import com.abbink.langpop.query.specific.SpecificEventExtractor.SpecificEventExtractorResponse
+import com.abbink.langpop.query.specific.SpecificEventExtractor.AggregationResult
 
 object SpecificAggregator {
 	sealed trait SpecificAggregatorMessage
 	case class Query(tags:Set[String], timestamp:Long) extends SpecificAggregatorMessage
-	case class AggregationResult(tag:String, timestamp:Long, number:Long) extends SpecificAggregatorMessage
+	
+	sealed trait SpecificAggregatorResponse
+	case class QueryResponse(values:Map[String, Long]) extends SpecificAggregatorResponse
 }
 
 trait SpecificAggregator extends Actor {
 	
-	protected def query(tags:Set[String], timestamp:Long) : Aggregator.QueryResponse
+	protected def query(tags:Set[String], timestamp:Long) : SpecificAggregator.QueryResponse
 	
 	protected def processAggregationResult(tag:String, timestamp:Long, number:Long)
 }
@@ -44,13 +47,15 @@ abstract class SpecificAggregatorImpl(val tags:Seq[String], val beginTimestamp:L
 	def receive = {
 		case message : SpecificAggregatorMessage => message match {
 			case Query(tags, timestamp) => sender ! query(tags, timestamp)
+		}
+		case message : SpecificEventExtractorResponse => message match {
 			case AggregationResult(tag, timestamp, number) => processAggregationResult(tag, timestamp, number)
 		}
 	}
 	
-	protected def query(tags:Set[String], timestamp:Long) : Aggregator.QueryResponse = {
+	protected def query(tags:Set[String], timestamp:Long) : SpecificAggregator.QueryResponse = {
 		val answers:Map[String, Long] = queryRecursive(tags, timestamp)
-		Aggregator.QueryResponse(answers)
+		SpecificAggregator.QueryResponse(answers)
 	}
 	
 	/**
