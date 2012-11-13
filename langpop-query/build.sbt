@@ -8,7 +8,8 @@ libraryDependencies ++= Seq(
 	"com.typesafe.akka" % "akka-actor" % "2.0.3",
 	"com.typesafe.akka" % "akka-slf4j" % "2.0.3",
 	"ch.qos.logback" % "logback-classic" % "1.0.7",
-	"net.liftweb" % "lift-json_2.9.1" % "2.4",
+	"net.liftweb" % "lift-json_2.9.1" % "2.4", // not ready for 2.9.2 yet. but 2.9.2 is binary compatible with 2.9.1
+	"joda-time" % "joda-time" % "2.1",
 	"org.apache.httpcomponents" % "httpclient" % "4.2.2",
 	"org.scalatest" %% "scalatest" % "1.8" % "test",
 	"com.typesafe.akka" % "akka-testkit" % "2.0.3" % "test"

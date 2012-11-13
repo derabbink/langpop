@@ -43,3 +43,28 @@ langpop-aggregate {
 		}
 	}
 }
+
+langpop-query {
+	langopop {
+		query {
+			stackoverflow {
+				eventQueryInterval = 60
+				filters {
+					event = "!9hnGt*H(i" # this filter includes all .wrapper fields
+				}
+			}
+		}
+	}
+	
+	akka {
+		event-handlers = ["akka.event.slf4j.Slf4jEventHandler"]
+		loglevel = DEBUG
+		log-config-on-start = off
+		actor.debug {
+			receive = on
+			autoreceive = on
+			lifecycle = on
+			event-stream = on
+		}
+	}
+}

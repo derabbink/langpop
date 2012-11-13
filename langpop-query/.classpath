@@ -14,6 +14,7 @@
   <classpathentry path="C:\Users\maarten\.ivy2\cache\com.thoughtworks.paranamer\paranamer\jars\paranamer-2.3.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.scala-lang\scalap\jars\scalap-2.9.1.jar" kind="lib"></classpathentry>
   <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_COMPILER_CONTAINER"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\joda-time\joda-time\jars\joda-time-2.1.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.apache.httpcomponents\httpclient\jars\httpclient-4.2.2.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.apache.httpcomponents\httpcore\jars\httpcore-4.2.2.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\commons-logging\commons-logging\jars\commons-logging-1.1.1.jar" kind="lib"></classpathentry>

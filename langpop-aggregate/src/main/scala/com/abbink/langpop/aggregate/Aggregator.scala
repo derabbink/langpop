@@ -24,7 +24,8 @@ trait Aggregator {
 }
 
 trait AggregatorComponent {
-	this:	CombinedSpecificAggregatorFactoryComponent =>
+	this:	CombinedSpecificAggregatorFactoryComponent with
+			QueryDependencyComponent =>
 	
 	def aggregator:Aggregator
 	
@@ -35,17 +36,18 @@ trait AggregatorComponent {
 		private val tagsFileName = mergedConfig getString "langpop.aggregate.tagsfile"
 		private val startTime:Long = mergedConfig.getLong("langpop.aggregate.starttime")
 		
-		private var system:ActorSystem = ActorSystem("LangpopSystem", mergedConfig)
+		private val system:ActorSystem = ActorSystem("LangpopSystem", mergedConfig)
 		
 		private var tags : Seq[String] = _
 		private var githubAggregatorRef : ActorRef = _
 		private var stackoverflowAggregatorRef : ActorRef = _
 		
-		start()
+		init()
 		
-		private def start() = {
+		private def init() = {
 			tags = readTags(tagsFileName)
 			startAggregators(tags, startTime)
+			startQuerySystem(startTime)
 		}
 		
 		private def readTags(tagsFile:String) : Seq[String] = {
@@ -55,7 +57,7 @@ trait AggregatorComponent {
 			Await.result[Seq[String]](f, timeout.duration)
 		}
 		
-		private def startAggregators(tags:Seq[String], beginTimestamp:Long) {
+		private def startAggregators(tags:Seq[String], beginTimestamp:Long) = {
 			//this may happen twice. the second time it will just silently fail
 			try{
 				githubAggregatorRef = system.actorOf(Props(combinedSpecificAggregatorFactory.createGithub(tags, beginTimestamp)), name = "GithubAggregator")
@@ -64,6 +66,10 @@ trait AggregatorComponent {
 			try {
 				stackoverflowAggregatorRef = system.actorOf(Props(combinedSpecificAggregatorFactory.createStackoverflow(tags, beginTimestamp)), name = "StackoverflowAggregator")
 			}
+		}
+		
+		private def startQuerySystem(startTime:Long) = {
+			query.querySystem.startStackOverflow()
 		}
 		
 		def retrieve(tags:Set[String], timestamp: Long) : CombinedResponse = {

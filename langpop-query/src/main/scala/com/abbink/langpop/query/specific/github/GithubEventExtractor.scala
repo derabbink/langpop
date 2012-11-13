@@ -27,6 +27,10 @@ trait GithubEventExtractorComponent {
 		
 		private val log = Logging(context.system, this)
 		
+		def start(args:AnyRef*) {
+			//TODO start consuming events
+		}
+		
 		override def preStart() = {
 			log.debug("Starting GithubEventExtractor")
 		}

@@ -1,26 +1,30 @@
 package com.abbink.langpop.web
 
-import com.abbink.langpop.aggregate.{ComponentRegistry => AggregatorComponentRegistry}
+import com.abbink.langpop.aggregate.{ComponentRegistry => AggregateComponentRegistry}
 import com.abbink.langpop.web.auth.StackOverflowAuthComponent
 import com.abbink.langpop.web.auth.StackOverflowAuth
+import com.abbink.langpop.web.status.StackOverflowStatusComponent
+import com.abbink.langpop.web.status.StackOverflowStatus
 
 trait ComponentRegistry extends
-	DependencyComponent with
-	StackOverflowAuthComponent
+	AggregateDependencyComponent with
+	StackOverflowAuthComponent with
+	StackOverflowStatusComponent
 {
 	def aggregate : Aggregate = AggregateImpl
 	def stackOverflowAuth : StackOverflowAuth = StackOverflowAuthImpl
+	def stackOverflowStatus : StackOverflowStatus = StackOverflowStatusImpl
 }
 
 /**
   * langpop-aggregate
   */
-trait Aggregate extends AggregatorComponentRegistry
+trait Aggregate extends AggregateComponentRegistry
 
 /**
   * Gathering dependencies here
   */
-trait DependencyComponent {
+trait AggregateDependencyComponent {
 	def aggregate:Aggregate
 	
 	object AggregateImpl extends Aggregate

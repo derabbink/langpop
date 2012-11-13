@@ -15,7 +15,7 @@ object SpecificEventExtractor {
 }
 
 trait SpecificEventExtractor extends Actor {
-	
+	def start(args:AnyRef*)
 }
 
 /**

@@ -8,6 +8,8 @@ import com.abbink.langpop.query.specific.stackoverflow.StackoverflowEventExtract
 import akka.actor.ActorRef
 import akka.event.Logging
 import com.typesafe.config.ConfigFactory
+import akka.actor.Props
+import akka.routing.RoundRobinRouter
 
 object StackoverflowEventExtractor {
 	sealed trait StackoverflowEventExtractorMessage
@@ -46,7 +48,24 @@ trait StackoverflowEventExtractorComponent {
 		private val pageSize = 100
 		private val site = "stackoverflow"
 		
-		//private var 
+		private var currentTimestamp = beginTimestamp
+		private var apiActorRef : ActorRef = _
+		private var accessToken:String = _
+		
+		init()
+		
+		private def init() = {
+			startChildren()
+		}
+		
+		private def startChildren() = {
+			apiActorRef = context.actorOf(Props[StackoverflowAPIActor].withRouter(RoundRobinRouter(nrOfInstances = 5)), name="StackoverflowAPIActor")
+		}
+		
+		def start(args:AnyRef*) = {
+			accessToken = args(0).asInstanceOf[String]
+			//TODO initialize scheduler
+		}
 		
 		override def preStart() = {
 			log.debug("Starting StackoverflowEventExtractor")
@@ -54,15 +73,16 @@ trait StackoverflowEventExtractorComponent {
 		
 		override def receive = {
 			case message : StackoverflowEventExtractorMessage => message match {
-				case Poll() => 
+				case Poll() => poll()
 			}
 		}
 		
 		/**
-		  * a blocking operation that queries the api
+		  * a blocking operation that queries the API, if necessary across multiple pages
 		  * /2.1/events
 		  */
 		private def poll() = {
+			
 			// /2.1/events?pagesize=100&site=stackoverflow&filter=!9hnGt*H(i
 			// sort=creation (_date)
 			// order=desc

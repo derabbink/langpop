@@ -22,4 +22,5 @@ class ParserSuite extends FunSuite {
 		val actual = Parser.parse(input)
 		assert(expected == actual)
 	}
+	
 }

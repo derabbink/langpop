@@ -5,7 +5,6 @@ import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.ArrayList
-import java.util.Date
 import java.util.Properties
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import org.apache.http.client.methods.HttpPost
@@ -20,6 +19,7 @@ import org.apache.http.util.EntityUtils
 import org.apache.http.client.utils.URLEncodedUtils
 import java.net.URI
 import java.nio.charset.Charset
+import org.joda.time.DateTimeUtils
 
 trait StackOverflowAuth {
 	
@@ -55,7 +55,7 @@ trait StackOverflowAuthComponent {
 				case None => false
 				case Some(t) => expires match {
 					case None => true
-					case Some(e) => e > (new Date().getTime()/1000).toLong
+					case Some(e) => e > DateTimeUtils.currentTimeMillis()/1000
 				}
 			}
 		}

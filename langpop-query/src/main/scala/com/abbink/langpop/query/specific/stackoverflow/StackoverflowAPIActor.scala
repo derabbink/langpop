@@ -32,7 +32,7 @@ class StackoverflowAPIActor extends Actor {
 		}
 	}
 	
-	private def getAndParse(uri: URI) : Option[AnyRef] = {
+	private def getAndParse(uri: URI) : Option[JValue] = {
 		val client : HttpClient = new DefaultHttpClient()
 		val get = new HttpGet(uri)
 		val response = client.execute(get)
@@ -41,15 +41,13 @@ class StackoverflowAPIActor extends Actor {
 		if (statuscode >= 200 && statuscode < 300) {
 			val entity = response.getEntity()
 			val jsonContent = EntityUtils.toString(entity)
-			val parsed = Parser.parse(jsonContent)
-			Some(parsed)
+			Parser.parse(jsonContent)
 		}
 		else
 			None
 	}
 	
 }
-
 
 object Parser {
 	

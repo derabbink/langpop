@@ -1,5 +1,13 @@
 package com.abbink.langpop.aggregate
 
+import com.abbink.langpop.web.Aggregate
+
+object AggregateTestImpl extends Aggregate {
+	
+	override def aggregator = AggregatorTestImpl
+	
+}
+
 object AggregatorTestImpl extends Aggregator {
 	
 	def retrieve(tags:Set[String], timestamp:Long) : CombinedResponse = {

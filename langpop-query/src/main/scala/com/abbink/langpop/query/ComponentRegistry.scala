@@ -8,10 +8,12 @@ import com.abbink.langpop.query.specific.github.GithubEventExtractorComponent
 import com.abbink.langpop.query.specific.stackoverflow.StackoverflowEventExtractorComponent
 
 trait ComponentRegistry extends
+	QuerySystemComponent with
 	CombinedSpecificEventExtractorFactoryComponent with
 	GithubEventExtractorComponent with
 	StackoverflowEventExtractorComponent
 {
+	def querySystem : QuerySystem = QuerySystemImpl
 	def combinedSpecificEventExtractorFactory : CombinedSpecificEventExtractorFactory = CombinedSpecificEventExtractorFactoryImpl
 	def githubEventExtractorFactory : GithubEventExtractorFactory = GithubEventExtractorFactoryImpl
 	def stackoverflowEventExtractorFactory : StackoverflowEventExtractorFactory = StackoverflowEventExtractorFactoryImpl
