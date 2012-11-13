@@ -30,12 +30,12 @@ trait AggregatorComponent {
 	
 	object AggregatorImpl extends Aggregator {
 		
-		val config = ConfigFactory.load()
-		val mergedConfig = config.getConfig("langpop-aggregate").withFallback(config)
-		val tagsFileName = mergedConfig getString "langpop.aggregate.tagsfile"
-		val startTime:Long = mergedConfig.getLong("langpop.aggregate.starttime")
+		private val config = ConfigFactory.load()
+		private val mergedConfig = config.getConfig("langpop-aggregate").withFallback(config)
+		private val tagsFileName = mergedConfig getString "langpop.aggregate.tagsfile"
+		private val startTime:Long = mergedConfig.getLong("langpop.aggregate.starttime")
 		
-		var system:ActorSystem = ActorSystem("LangpopSystem", mergedConfig)
+		private var system:ActorSystem = ActorSystem("LangpopSystem", mergedConfig)
 		
 		private var tags : Seq[String] = _
 		private var githubAggregatorRef : ActorRef = _

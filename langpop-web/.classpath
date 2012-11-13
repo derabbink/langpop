@@ -10,17 +10,20 @@
   <classpathentry path="C:\Users\maarten\.ivy2\cache\ch.qos.logback\logback-classic\jars\logback-classic-1.0.7.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\ch.qos.logback\logback-core\jars\logback-core-1.0.7.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.slf4j\slf4j-api\jars\slf4j-api-1.6.6.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\net.liftweb\lift-json_2.9.1\jars\lift-json_2.9.1-2.4.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\com.thoughtworks.paranamer\paranamer\jars\paranamer-2.3.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\org.scala-lang\scalap\jars\scalap-2.9.1.jar" kind="lib"></classpathentry>
+  <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_COMPILER_CONTAINER"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\org.apache.httpcomponents\httpclient\jars\httpclient-4.2.2.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\org.apache.httpcomponents\httpcore\jars\httpcore-4.2.2.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\commons-logging\commons-logging\jars\commons-logging-1.1.1.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\commons-codec\commons-codec\jars\commons-codec-1.6.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.scalatra\scalatra\jars\scalatra-2.1.1.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.clapper\grizzled-slf4j_2.9.2\jars\grizzled-slf4j_2.9.2-0.6.9.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\io.backchat.rl\rl_2.9.2\jars\rl_2.9.2-0.3.2.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.scalatra\scalatra-scalate\jars\scalatra-scalate-2.1.1.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.fusesource.scalate\scalate-core\bundles\scalate-core-1.5.3.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.fusesource.scalate\scalate-util\bundles\scalate-util-1.5.3.jar" kind="lib"></classpathentry>
-  <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_COMPILER_CONTAINER"></classpathentry>
-  <classpathentry path="C:\Users\maarten\.ivy2\cache\org.apache.httpcomponents\httpclient\jars\httpclient-4.2.2.jar" kind="lib"></classpathentry>
-  <classpathentry path="C:\Users\maarten\.ivy2\cache\org.apache.httpcomponents\httpcore\jars\httpcore-4.2.2.jar" kind="lib"></classpathentry>
-  <classpathentry path="C:\Users\maarten\.ivy2\cache\commons-logging\commons-logging\jars\commons-logging-1.1.1.jar" kind="lib"></classpathentry>
-  <classpathentry path="C:\Users\maarten\.ivy2\cache\commons-codec\commons-codec\jars\commons-codec-1.6.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.eclipse.jetty.orbit\javax.servlet\jars\javax.servlet-3.0.0.v201112011016.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.scalatra\scalatra-specs2\jars\scalatra-specs2-2.1.1.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\org.scalatra\scalatra-test\jars\scalatra-test-2.1.1.jar" kind="lib"></classpathentry>

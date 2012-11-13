@@ -6,6 +6,20 @@
   <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\com.typesafe.akka\akka-actor\jars\akka-actor-2.0.3.jar" kind="lib"></classpathentry>
   <classpathentry path="C:\Users\maarten\.ivy2\cache\com.typesafe\config\bundles\config-0.3.1.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\com.typesafe.akka\akka-slf4j\jars\akka-slf4j-2.0.3.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\ch.qos.logback\logback-classic\jars\logback-classic-1.0.7.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\ch.qos.logback\logback-core\jars\logback-core-1.0.7.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\org.slf4j\slf4j-api\jars\slf4j-api-1.6.6.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\net.liftweb\lift-json_2.9.1\jars\lift-json_2.9.1-2.4.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\com.thoughtworks.paranamer\paranamer\jars\paranamer-2.3.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\org.scala-lang\scalap\jars\scalap-2.9.1.jar" kind="lib"></classpathentry>
+  <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_COMPILER_CONTAINER"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\org.apache.httpcomponents\httpclient\jars\httpclient-4.2.2.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\org.apache.httpcomponents\httpcore\jars\httpcore-4.2.2.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\commons-logging\commons-logging\jars\commons-logging-1.1.1.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\commons-codec\commons-codec\jars\commons-codec-1.6.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\org.scalatest\scalatest_2.9.2\jars\scalatest_2.9.2-1.8.jar" kind="lib"></classpathentry>
+  <classpathentry path="C:\Users\maarten\.ivy2\cache\com.typesafe.akka\akka-testkit\jars\akka-testkit-2.0.3.jar" kind="lib"></classpathentry>
   <classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"></classpathentry>
   <classpathentry path="bin" kind="output"></classpathentry>
 </classpath>

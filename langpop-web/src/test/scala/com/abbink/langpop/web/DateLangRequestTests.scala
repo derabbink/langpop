@@ -22,7 +22,6 @@ class DateLangRequestTests extends ScalatraSuite with FunSuite with TestingEnvir
 	
 	
 	test("get date/language") {
-		println(":get date/language")
 		get("/langpop/1352649165/scala") {
 			status should equal (200)
 			body should include ("1352649165");
@@ -30,7 +29,6 @@ class DateLangRequestTests extends ScalatraSuite with FunSuite with TestingEnvir
 	}
 	
 	test("get date/language 2") {
-		println(":get date/language 2")
 		get("/langpop/1352649165/scala/") {
 			status should equal (200)
 			body should include ("1352649165");
@@ -38,28 +36,24 @@ class DateLangRequestTests extends ScalatraSuite with FunSuite with TestingEnvir
 	}
 	
 	test("get date (no language)") {
-		println(":get date (no language)")
 		get("/langpop/2012-10-19") {
 			status should equal (404)
 		}
 	}
 	
 	test("get date (no language) 2") {
-		println(":get date (no language) 2")
 		get("/langpop/2012-10-19/") {
 			status should equal (404)
 		}
 	}
 	
 	test("get langage (no date)") {
-		println(":get langage (no date)")
 		get("/langpop//scala") {
 			status should equal (404)
 		}
 	}
 	
 	test("get langage (no date) 2") {
-		println(":get langage (no date) 2")
 		get("/langpop//scala/") {
 			status should equal (404)
 		}
