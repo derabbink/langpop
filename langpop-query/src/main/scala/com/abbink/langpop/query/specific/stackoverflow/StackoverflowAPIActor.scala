@@ -21,7 +21,7 @@ object StackoverflowAPIActor {
 	case class Uri(uri:URI) extends StackoverflowAPIActorMessage
 	
 	sealed trait StackoverflowAPIActorResponseMessage
-	case class Json(response:Option[AnyRef]) extends StackoverflowAPIActorResponseMessage
+	case class Json(data:Option[JValue]) extends StackoverflowAPIActorResponseMessage
 }
 
 class StackoverflowAPIActor extends Actor {

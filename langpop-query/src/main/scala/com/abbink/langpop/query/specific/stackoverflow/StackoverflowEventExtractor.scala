@@ -5,6 +5,8 @@ import com.abbink.langpop.query.specific.SpecificEventExtractor
 import com.abbink.langpop.query.specific.SpecificEventExtractorImpl
 import com.abbink.langpop.query.specific.stackoverflow.StackoverflowEventExtractor.StackoverflowEventExtractorMessage
 import com.abbink.langpop.query.specific.stackoverflow.StackoverflowEventExtractor.Poll
+import com.abbink.langpop.query.specific.stackoverflow.StackoverflowAPIActor.Uri
+import com.abbink.langpop.query.specific.stackoverflow.StackoverflowAPIActor.Json
 import akka.actor.ActorRef
 import akka.event.Logging
 import com.typesafe.config.ConfigFactory
@@ -17,6 +19,12 @@ import akka.pattern.ask
 import akka.util.duration.intToDurationInt
 import akka.util.Timeout
 import org.apache.http.client.utils.URIBuilder
+import java.util.NavigableSet
+import java.util.concurrent.ConcurrentSkipListSet
+import java.util.Comparator
+import akka.dispatch.Await
+import akka.dispatch.Future
+import net.liftweb.json.JsonAST.JValue
 
 object StackoverflowEventExtractor {
 	sealed trait StackoverflowEventExtractorMessage
@@ -122,16 +130,8 @@ trait StackoverflowEventExtractorComponent {
 			// /2.1/events?pagesize=100&site=stackoverflow&filter=!9hnGt*H(i
 			// /events cannot be ordered
 			
-			val uriBuilder = new URIBuilder();
-			uriBuilder.setScheme("https").setHost("api.stackexchange.com").setPath("/2.1/events")
-				.setParameter("site", "stackoverflow")	
-				.setParameter("since", from.toString())
-				.setParameter("access_token", accessToken)
-				.setParameter("key", apiKey)
-				.setParameter("pagesize", "100")
-				.setParameter("filter", queryFilter)
-				//.setParameter("page", "1")
-			val uri = uriBuilder.build
+			val events = getEvents(from)
+			//TODO drop events newer than #now
 			
 			//schedule next poll
 			currentTimestamp = now + 1
@@ -144,6 +144,72 @@ trait StackoverflowEventExtractorComponent {
 			}
 			scheduled = system.scheduler.scheduleOnce(wait seconds) {
 				poll(newFrom)
+			}
+		}
+		
+		/**
+		  * produces a seq of event IDs in chronological order.
+		  */
+		private def getEvents(from:Long) : Seq[Long]= {
+			//accumulative argument that collects all relevant events with (timestamp, event ID)
+			//maintains chronological order
+			var events : NavigableSet[(Long, Long)] = new ConcurrentSkipListSet[(Long, Long)](new TimestampEventComparator)
+			traversePages(from, 1, events)
+			
+			//TODO use #events to generate result
+			null
+		}
+		
+		/**
+		  * Recursively query event pages, until no following page is found
+		  * Events are always sorted youngest to oldest. No upper limit timestamp can be specified.
+		  * Thus while querying the first page of events, new events might occur that push events from the first page down to the 2nd page, etc.
+		  * Thus while navigating pages, the number of pages can increase.
+		  * 
+		  * The newly pushed-in events will be captured by the next iteration of the extractor.
+		  */
+		private def traversePages(from:Long, currentPage:Int, results:NavigableSet[(Long, Long)]) = {
+			// https://api.stackexchange.com/2.1/events?pagesize=100&page=1&site=stackoverflow&since=1352897846&access_token=&key=&filter=!9hnGt*H(i
+			val uriBuilder = new URIBuilder();
+			uriBuilder.setScheme("https").setHost("api.stackexchange.com").setPath("/2.1/events")
+				.setParameter("site", "stackoverflow")	
+				.setParameter("since", from.toString())
+				.setParameter("access_token", accessToken)
+				.setParameter("key", apiKey)
+				.setParameter("pagesize", "100")
+				.setParameter("filter", queryFilter)
+				.setParameter("page", currentPage.toString())
+			val uri = uriBuilder.build
+			
+			val timeout:Timeout = Timeout(10 seconds)
+			val f:Future[Json] = ask(apiActorRef, Uri(uri))(timeout).mapTo[Json]
+			val json = Await.result[Json](f, timeout.duration)
+			
+			if (json.data != None) {
+				val data = json.data.get
+				collectEvents(from, data, results)
+				
+				//TODO recursively go to next page if it exists
+			}
+		}
+		
+		/**
+		  * pulls all relevant events from #data and stores them in the accumulative argument #results
+		  */
+		private def collectEvents(from:Long, data:JValue, results:NavigableSet[(Long, Long)]) = {
+			//TODO
+			null
+		}
+		
+		/**
+		  * compares (a1:Long, a2:Long) to (b1:Long, b2:Long), such that first a1 is compared to b1, and if those equal, a2 is compared to b2
+		  */
+		private class TimestampEventComparator extends Comparator[(Long, Long)] {
+			def compare(a:(Long,Long), b:(Long,Long)) : Int = {
+				(a _1) compareTo (b _1) match {
+					case 0 => (a _2) compareTo (b _2)
+					case x => x
+				}
 			}
 		}
 	}
