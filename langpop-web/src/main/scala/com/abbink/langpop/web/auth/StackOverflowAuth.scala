@@ -23,6 +23,8 @@ import org.joda.time.DateTimeUtils
 
 trait StackOverflowAuth {
 	
+	def token() : Option[String]
+	
 	def isAuthenticated() : Boolean
 	
 	def buildOAuthUrl() : String
@@ -49,6 +51,10 @@ trait StackOverflowAuthComponent {
 		private var access_token : Option[String] = None
 		private var expires : Option[Long] = None
 		readAuth()
+		
+		def token() : Option[String] = {
+			access_token
+		}
 		
 		def isAuthenticated() = {
 			access_token match {

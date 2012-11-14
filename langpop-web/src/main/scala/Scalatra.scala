@@ -1,10 +1,9 @@
 import org.scalatra.LifeCycle
-
 import com.abbink.langpop.web.ComponentRegistry
 import com.abbink.langpop.web.LangpopServlet
 import com.abbink.langpop.web.AuthServlet
-
 import javax.servlet.ServletContext
+import com.abbink.langpop.web.StatusServlet
 
 /**
   * This is the Scalatra bootstrap file. You can use it to mount servlets or
@@ -17,5 +16,6 @@ class Scalatra extends LifeCycle with ComponentRegistry {
 		// Mount one or more servlets
 		context.mount(new LangpopServlet, "/langpop/*")
 		context.mount(new AuthServlet, "/auth/*")
+		context.mount(new StatusServlet, "/status/*")
 	}
 }

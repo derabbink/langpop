@@ -1,6 +1,8 @@
 package com.abbink.langpop.query
 
 import com.abbink.langpop.aggregate.Query
+import akka.actor.ActorRef
+import akka.actor.ActorSystem
 
 object QueryTestImpl extends Query {
 	
@@ -9,7 +11,11 @@ object QueryTestImpl extends Query {
 }
 
 object QuerySystemTestImpl extends QuerySystem {
-	def startStackOverflow() = {
+	def init(actorSystem:ActorSystem, githubActorRef:ActorRef, stackoverflowActorRef:ActorRef, startTimestamp:Long) {
+		//TODO
+	}
+	
+	def startStackOverflow(accessToken:String) = {
 		//TODO
 	}
 	
@@ -23,5 +29,25 @@ object QuerySystemTestImpl extends QuerySystem {
 	
 	def stopGithub() = {
 		//TODO
+	}
+	
+	def isRunningStackOverflow() : Boolean = {
+		//TODO
+		true
+	}
+	
+	def isRunningGithub() : Boolean = {
+		//TODO
+		true
+	}
+	
+	def requestCountStackOverflow() : Int = {
+		//TODO
+		0
+	}
+	
+	def requestCountGithub() : Int = {
+		//TODO
+		0
 	}
 }

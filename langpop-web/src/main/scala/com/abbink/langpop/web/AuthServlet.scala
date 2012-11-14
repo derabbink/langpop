@@ -14,6 +14,7 @@ class AuthServlet extends ScalatraServlet with ScalateSupport with ComponentRegi
 					<li>StackOverflow: {stackoverflowLogin()}</li>
 					<li>GitHub: {githubLogin}</li>
 					<li>Issue query <a href="/langpop">here</a></li>
+					<li>Check status <a href="/status">here</a></li>
 				</ul>
 			</body>
 		</html>

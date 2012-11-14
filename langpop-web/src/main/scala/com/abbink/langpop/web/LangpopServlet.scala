@@ -17,7 +17,8 @@ class LangpopServlet extends ScalatraServlet with ScalateSupport with ComponentR
 				<h1>langpop</h1>
 				<ul>
 					<li>Issue query: e.g. <a href="/langpop/1352645381/scala">/langpop/1352645381/scala</a></li>
-					<li>check data source login status <a href="/auth">here</a></li>
+					<li>Check data source login status <a href="/auth">here</a></li>
+					<li>Check status <a href="/status">here</a></li>
 				</ul>
 			</body>
 		</html>

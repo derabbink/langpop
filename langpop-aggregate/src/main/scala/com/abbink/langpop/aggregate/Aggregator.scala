@@ -47,7 +47,7 @@ trait AggregatorComponent {
 		private def init() = {
 			tags = readTags(tagsFileName)
 			startAggregators(tags, startTime)
-			startQuerySystem(startTime)
+			initQuerySystem(startTime)
 		}
 		
 		private def readTags(tagsFile:String) : Seq[String] = {
@@ -68,8 +68,8 @@ trait AggregatorComponent {
 			}
 		}
 		
-		private def startQuerySystem(startTime:Long) = {
-			query.querySystem.startStackOverflow()
+		private def initQuerySystem(startTime:Long) = {
+			query.querySystem.init(system, githubAggregatorRef, stackoverflowAggregatorRef, startTime)
 		}
 		
 		def retrieve(tags:Set[String], timestamp: Long) : CombinedResponse = {
