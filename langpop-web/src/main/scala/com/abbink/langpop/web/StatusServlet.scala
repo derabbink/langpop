@@ -35,6 +35,10 @@ class StatusServlet extends ScalatraServlet with ScalateSupport with ComponentRe
 	}
 	
 	private def githubStatus() = {
+		<i>not implemented yet</i>
+	}
+	
+	private def actions() = {
 		if (stackOverflowStatus.isReady() /*and github is ready*/) {
 			if (stackOverflowStatus.isRunning() /*or github is running*/) {
 				<a href="/status/stop">stop all</a>
@@ -46,10 +50,6 @@ class StatusServlet extends ScalatraServlet with ScalateSupport with ComponentRe
 		else {
 			<i>fix authentication first</i>
 		}
-	}
-	
-	private def actions() = {
-		<strong>some actions here</strong>
 	}
 	
 	get("/start") {

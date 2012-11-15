@@ -1,5 +1,7 @@
 package com.abbink.langpop.query.specific.stackoverflow
 
+import com.abbink.langpop.query.specific.stackoverflow.Parser.EventsWrapper
+import com.abbink.langpop.query.specific.stackoverflow.Parser.Event
 import org.scalatest.FunSuite
 import net.liftweb.json.JsonAST.JObject
 import net.liftweb.json.JsonAST.JField
@@ -71,6 +73,37 @@ class ParserSuite extends FunSuite {
 				JField("has_more",JBool(false))
 			)))
 		val actual = Parser.parse(input)
+		//println(actual)
+		assert(expected == actual)
+	}
+	
+	test("extracting valid /event JSON") {
+		val input = """ {"total":5,"page_size":100,"page":1,"type":"event","items":[
+				{"event_type":"comment_posted","event_id":18270399,"creation_date":1352897995},
+				{"event_type":"user_created","event_id":1823757,"creation_date":1352897994},
+				{"event_type":"post_edited","event_id":13369568,"creation_date":1352897993},
+				{"event_type":"question_posted","event_id":13379299,"creation_date":1352897988},
+				{"event_type":"answer_posted","event_id":13379298,"creation_date":1352897986}
+			],"quota_remaining":9998,"quota_max":10000,"has_more":false} """
+		val expected =
+			Some(EventsWrapper(
+				None,
+				5,
+				100,
+				1,
+				"event",
+				List(
+					Event("comment_posted",18270399,1352897995),
+					Event("user_created",1823757,1352897994),
+					Event("post_edited",13369568,1352897993),
+					Event("question_posted",13379299,1352897988),
+					Event("answer_posted",13379298,1352897986)
+				),
+				9998,
+				10000,
+				false
+			))
+		val actual = Parser.extractEvents(Parser.parse(input))
 		//println(actual)
 		assert(expected == actual)
 	}

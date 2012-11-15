@@ -58,9 +58,14 @@ trait QuerySystemComponent {
 			try{
 				stackoverflowExtractorActorRef = system.actorOf(Props(combinedSpecificEventExtractorFactory.createStackoverflow(system, stackoverflowActorRef, startTimestamp)), name = "StackoverflowEventExtractor")
 			}
+			catch {
+				case _ => stackoverflowExtractorActorRef = system.actorFor("/user/StackoverflowEventExtractor")
+			}
 		}
 		
 		def startStackOverflow(accessToken:String) = {
+			//sometimes the actor ref is not initialized
+			initStackOverflow()
 			stackoverflowExtractorActorRef ! Start(accessToken)
 		}
 		

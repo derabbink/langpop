@@ -62,9 +62,15 @@ trait AggregatorComponent {
 			try{
 				githubAggregatorRef = system.actorOf(Props(combinedSpecificAggregatorFactory.createGithub(tags, beginTimestamp)), name = "GithubAggregator")
 			}
+			catch {
+				case _ => githubAggregatorRef = system.actorFor("/user/GithubAggregator")
+			}
 			
 			try {
 				stackoverflowAggregatorRef = system.actorOf(Props(combinedSpecificAggregatorFactory.createStackoverflow(tags, beginTimestamp)), name = "StackoverflowAggregator")
+			}
+			catch {
+				case _ => stackoverflowAggregatorRef = system.actorFor("/user/StackoverflowAggregator")
 			}
 		}
 		

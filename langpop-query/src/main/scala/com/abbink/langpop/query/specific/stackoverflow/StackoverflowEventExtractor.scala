@@ -6,7 +6,12 @@ import com.abbink.langpop.query.specific.SpecificEventExtractorImpl
 import com.abbink.langpop.query.specific.stackoverflow.StackoverflowEventExtractor.StackoverflowEventExtractorMessage
 import com.abbink.langpop.query.specific.stackoverflow.StackoverflowEventExtractor.Poll
 import com.abbink.langpop.query.specific.stackoverflow.StackoverflowAPIActor.Uri
+import com.abbink.langpop.query.specific.stackoverflow.StackoverflowAPIActor.UriParse
 import com.abbink.langpop.query.specific.stackoverflow.StackoverflowAPIActor.Json
+import com.abbink.langpop.query.specific.stackoverflow.Parser.EventsWrapper
+import com.abbink.langpop.query.specific.stackoverflow.Parser.Event
+import com.abbink.langpop.query.specific.stackoverflow.Parser.classofEventsWrapper
+import scala.math._
 import akka.actor.ActorRef
 import akka.event.Logging
 import com.typesafe.config.ConfigFactory
@@ -87,7 +92,12 @@ trait StackoverflowEventExtractorComponent {
 			running = true
 			accessToken = args(0).asInstanceOf[String]
 			apiKey = args(1).asInstanceOf[String]
-			schedule(0)
+			val now : Long = DateTimeUtils.currentTimeMillis()/1000
+			//set #currentTimestamp to no more than 10 seconds back (just to keep the first poll from being too large)
+			currentTimestamp = max(currentTimestamp, now-10)
+			//if currentTimestamp lies in the future
+			val startDelay:Int = max(0, (currentTimestamp-now).toInt)
+			schedule(startDelay)
 		}
 		
 		/**
@@ -131,7 +141,7 @@ trait StackoverflowEventExtractorComponent {
 			// /events cannot be ordered
 			
 			val events = getEvents(from)
-			//TODO drop events newer than #now
+			//TODO drop events newer than #now. those will be picked up in the next poll iteration
 			
 			//schedule next poll
 			currentTimestamp = now + 1
@@ -151,12 +161,16 @@ trait StackoverflowEventExtractorComponent {
 		  * produces a seq of event IDs in chronological order.
 		  */
 		private def getEvents(from:Long) : Seq[Long]= {
+			import scala.collection.JavaConversions._
 			//accumulative argument that collects all relevant events with (timestamp, event ID)
 			//maintains chronological order
 			var events : NavigableSet[(Long, Long)] = new ConcurrentSkipListSet[(Long, Long)](new TimestampEventComparator)
 			traversePages(from, 1, events)
 			
-			//TODO use #events to generate result
+			//use events to generate result
+			var eventIds : List[Long] = events.iterator().toList map (x => x _2)
+			println(eventIds)
+			//TODO
 			null
 		}
 		
@@ -168,7 +182,7 @@ trait StackoverflowEventExtractorComponent {
 		  * 
 		  * The newly pushed-in events will be captured by the next iteration of the extractor.
 		  */
-		private def traversePages(from:Long, currentPage:Int, results:NavigableSet[(Long, Long)]) = {
+		private def traversePages(from:Long, currentPage:Int, results:NavigableSet[(Long, Long)]) : Unit = {
 			// https://api.stackexchange.com/2.1/events?pagesize=100&page=1&site=stackoverflow&since=1352897846&access_token=&key=&filter=!9hnGt*H(i
 			val uriBuilder = new URIBuilder();
 			uriBuilder.setScheme("https").setHost("api.stackexchange.com").setPath("/2.1/events")
@@ -182,23 +196,44 @@ trait StackoverflowEventExtractorComponent {
 			val uri = uriBuilder.build
 			
 			val timeout:Timeout = Timeout(10 seconds)
-			val f:Future[Json] = ask(apiActorRef, Uri(uri))(timeout).mapTo[Json]
-			val json = Await.result[Json](f, timeout.duration)
+			val f:Future[Option[EventsWrapper]] = ask(apiActorRef, UriParse(classofEventsWrapper, uri))(timeout).mapTo[Option[EventsWrapper]]
+			val eventsw = Await.result[Option[EventsWrapper]](f, timeout.duration)
 			
-			if (json.data != None) {
-				val data = json.data.get
+			if (eventsw != None) {
+				val data = eventsw.get
 				collectEvents(from, data, results)
-				
-				//TODO recursively go to next page if it exists
+				continueTaversing(from, data, results)
 			}
 		}
 		
 		/**
 		  * pulls all relevant events from #data and stores them in the accumulative argument #results
 		  */
-		private def collectEvents(from:Long, data:JValue, results:NavigableSet[(Long, Long)]) = {
-			//TODO
-			null
+		private def collectEvents(from:Long, data:EventsWrapper, results:NavigableSet[(Long, Long)]) = {
+			import scala.collection.JavaConversions._
+			val items = data.items
+					.filter (e => e match {
+						case Event("question_posted", _, _) => true
+						case Event("post_edited", _, _) => true
+						case _ => false
+					})
+					.map (e => (e.creation_date, e.event_id))
+			results addAll items
+		}
+		
+		/**
+		  * read wrapper data and recursively traverse pages if needed
+		  * respects backoff value
+		  */
+		private def continueTaversing(from:Long, data:EventsWrapper, results:NavigableSet[(Long, Long)]) = {
+			// backoff:Option[Int], total:Int, page_size:Int, page:Int, `type`:String,
+			// items:List[Event], quota_remaining:Int, quota_max:Int, has_more:Boolean
+			if (data.has_more) {
+				val totalPages = max(1, ceil(data.total / data.page_size).toInt)
+				if (data.page < totalPages) {
+					traversePages(from, data.page+1, results)
+				}
+			}
 		}
 		
 		/**
