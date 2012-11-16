@@ -22,7 +22,7 @@ object SpecificEventExtractor {
 	case class Running(running:Boolean) extends SpecificEventExtractorControlResponseMessage
 	
 	sealed trait SpecificEventExtractorResponse
-	case class AggregationResult(tag:String, timestamp:Long, number:Long) extends SpecificEventExtractorResponse
+	case class AggregationResult(tag:String, timestamp:Long, diff:Int) extends SpecificEventExtractorResponse
 }
 
 trait SpecificEventExtractor extends Actor {

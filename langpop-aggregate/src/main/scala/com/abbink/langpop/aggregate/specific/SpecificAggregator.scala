@@ -28,7 +28,7 @@ trait SpecificAggregator extends Actor {
 	
 	protected def query(tags:Set[String], timestamp:Long) : SpecificAggregator.QueryResponse
 	
-	protected def processAggregationResult(tag:String, timestamp:Long, number:Long)
+	protected def processAggregationResult(tag:String, timestamp:Long, diff:Int)
 }
 
 /**
@@ -49,7 +49,7 @@ abstract class SpecificAggregatorImpl(val tags:Seq[String], val beginTimestamp:L
 			case Query(tags, timestamp) => sender ! query(tags, timestamp)
 		}
 		case message : SpecificEventExtractorResponse => message match {
-			case AggregationResult(tag, timestamp, number) => processAggregationResult(tag, timestamp, number)
+			case AggregationResult(tag, timestamp, diff) => processAggregationResult(tag, timestamp, diff)
 		}
 	}
 	
@@ -76,14 +76,17 @@ abstract class SpecificAggregatorImpl(val tags:Seq[String], val beginTimestamp:L
 			Map()
 	}
 	
-	protected def processAggregationResult(tag:String, timestamp:Long, number:Long) {
+	protected def processAggregationResult(tag:String, timestamp:Long, diff:Int) {
 		var writeBack = false
 		var metrics:Map[String, Long] = store.get(timestamp) match {
 			case null => writeBack = true
 					Map()
 			case m => m
 		}
-		
+		val number = metrics.get(tag) match {
+			case None => diff.toLong
+			case Some(l) => l + diff
+		}
 		metrics += (tag -> number)
 		
 		if (writeBack)

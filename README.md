@@ -7,6 +7,10 @@ N.B.: Querying GitHub is not yet implemented.
 
 Getting Started
 ------
+**The current version is does not yet work.**
+There are some quick-and-dirty code solutions to problems (probably) caused by Scalatra, causing the system to only start if you already have a StackOverflow access token.
+Sadly, after the first batch of events is processed, everything crashes, because in the context of a servlet objects are destroyed and not recreated with the proper initialization. I blame Scalatra, and not the lack of time for this project ;)
+
 The tool is written in [Scala][3], and you'll need [SBT][4] to build and run it.<br/>
 The SBT project is composed of multiple sub-projects, with `langpop-web` being the main entry point of any code invocations. However, you should **run `sbt` *only* on the main project**, to avoid the creation of bogus `project/` directories in the sub-projects' folders.
 

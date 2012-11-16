@@ -2,6 +2,7 @@ package com.abbink.langpop.query.specific.stackoverflow
 
 import com.abbink.langpop.query.specific.SingularSpecificEventExtractorFactory
 import com.abbink.langpop.query.specific.SpecificEventExtractor
+import com.abbink.langpop.query.specific.SpecificEventExtractor.AggregationResult
 import com.abbink.langpop.query.specific.SpecificEventExtractorImpl
 import com.abbink.langpop.query.specific.stackoverflow.StackoverflowEventExtractor.StackoverflowEventExtractorMessage
 import com.abbink.langpop.query.specific.stackoverflow.StackoverflowEventExtractor.Poll
@@ -9,8 +10,12 @@ import com.abbink.langpop.query.specific.stackoverflow.StackoverflowAPIActor.Uri
 import com.abbink.langpop.query.specific.stackoverflow.StackoverflowAPIActor.UriParse
 import com.abbink.langpop.query.specific.stackoverflow.StackoverflowAPIActor.Json
 import com.abbink.langpop.query.specific.stackoverflow.Parser.EventsWrapper
+import com.abbink.langpop.query.specific.stackoverflow.Parser.RevisionsWrapper
 import com.abbink.langpop.query.specific.stackoverflow.Parser.Event
-import com.abbink.langpop.query.specific.stackoverflow.Parser.classofEventsWrapper
+import com.abbink.langpop.query.specific.stackoverflow.Parser.Revision
+import com.abbink.langpop.query.specific.stackoverflow.Parser.TypeClassifier
+import com.abbink.langpop.query.specific.stackoverflow.Parser.ClassofEventsWrapper
+import com.abbink.langpop.query.specific.stackoverflow.Parser.ClassofRevisionsWrapper
 import com.abbink.langpop.query.specific.stackoverflow.StackoverflowAPIActor.Extracted
 import scala.math._
 import akka.actor.ActorRef
@@ -31,6 +36,8 @@ import java.util.Comparator
 import akka.dispatch.Await
 import akka.dispatch.Future
 import net.liftweb.json.JsonAST.JValue
+import java.util.NavigableMap
+import java.util.concurrent.ConcurrentSkipListMap
 
 object StackoverflowEventExtractor {
 	sealed trait StackoverflowEventExtractorMessage
@@ -67,6 +74,7 @@ trait StackoverflowEventExtractorComponent {
 		
 		private val queryInterval = mergedConfig.getInt("langpop.query.stackoverflow.eventQueryInterval")
 		private val queryFilter = mergedConfig.getString("langpop.query.stackoverflow.filters.event")
+		private val revisionsFilter = mergedConfig.getString("langpop.query.stackoverflow.filters.revisions")
 		private val pageSize = 100
 		private val site = "stackoverflow"
 		
@@ -146,7 +154,8 @@ trait StackoverflowEventExtractorComponent {
 			
 			
 			val events = getEvents(from, now)
-			//TODO use event IDs to query event information
+			if (events.length > 0)
+				processEvents(events)
 			
 			//schedule next poll
 			currentTimestamp = now + 1
@@ -204,7 +213,7 @@ trait StackoverflowEventExtractorComponent {
 			val uri = uriBuilder.build
 			
 			val timeout:Timeout = Timeout(10 seconds)
-			val f:Future[Extracted] = ask(apiActorRef, UriParse(classofEventsWrapper, uri))(timeout).mapTo[Extracted]
+			val f:Future[Extracted] = ask(apiActorRef, UriParse(ClassofEventsWrapper(), uri))(timeout).mapTo[Extracted]
 			val extracted = Await.result[Extracted](f, timeout.duration)
 			val eventsw : Option[EventsWrapper] = extracted.data.asInstanceOf[Option[EventsWrapper]]
 			
@@ -250,6 +259,135 @@ trait StackoverflowEventExtractorComponent {
 					traversePages(from, data.page+1, results)
 				}
 			}
+		}
+		
+		/**
+		  * processes chronological event ids and submits data to aggregators
+		  */
+		private def processEvents(eventIds:Seq[Long]) = {
+			val pagedIds = paginate(eventIds, 100)
+			
+			for(idsPage <- pagedIds) {
+				val ids = implode(idsPage, ";")
+				val uriBuilder = new URIBuilder();
+				uriBuilder.setScheme("https").setHost("api.stackexchange.com").setPath("/2.1/posts/"+ids+"/revisions")
+					.setParameter("site", "stackoverflow")	
+					.setParameter("access_token", accessToken)
+					.setParameter("key", apiKey)
+					.setParameter("pagesize", "100")
+					.setParameter("filter", revisionsFilter)
+					.setParameter("page", "1") //TODO implement recursive page reading here, too
+				val uri = uriBuilder.build
+				
+				val timeout:Timeout = Timeout(10 seconds)
+				val f:Future[Extracted] = ask(apiActorRef, UriParse(ClassofRevisionsWrapper(), uri))(timeout).mapTo[Extracted]
+				val extracted = Await.result[Extracted](f, timeout.duration)
+				val revisionsw : Option[RevisionsWrapper] = extracted.data.asInstanceOf[Option[RevisionsWrapper]]
+				
+				//println("parsed revisions page: "+ revisionsw)
+				
+				if (revisionsw != None) {
+					val data = revisionsw.get
+					collectRevisions(data, idsPage)
+					//TODO implement recursive page reading here, too
+				}
+			}
+		}
+		
+		private def collectRevisions(data:RevisionsWrapper, postIds:Seq[Long]) = {
+			import scala.collection.JavaConversions._
+			//Quick & Dirty:only collect last revision for post
+			//TODO collect only explicitly relevant revisions
+			val revisions : NavigableMap[(Long, Long), Revision] = new ConcurrentSkipListMap[(Long, Long), Revision](new TimestampEventComparator)
+			var revisionsPruned = Seq[Revision]()
+			for(rev <- data.items)
+				revisions.put((rev.creation_date, rev.post_id), rev)
+			
+			//process input grouped by post-id
+			for (postId <- postIds) {
+				val key = revisions.keySet()
+						.filter(x => (x _2) == postId)
+						.last
+				val rev = revisions.get(key)
+				revisionsPruned = revisionsPruned :+ rev
+			}
+			
+			revisionsPruned = revisionsPruned.filter( r => r match {
+					case Revision("question", _, _, _, _) => true
+					case _ => false
+				})
+			
+			collectTagChanges(revisionsPruned)
+		}
+		
+		private def collectTagChanges(revisions:Seq[Revision]) {
+			for (rev <- revisions) {
+				rev match {
+					case Revision(_, _, creation_date, None, Some(tags)) => addTags(tags, creation_date)
+					case Revision(_, _, creation_date, Some(old_tags), Some(tags)) =>
+						val diff = tagDiff(old_tags, tags)
+						addTags(diff _1, creation_date)
+						removeTags(diff _2, creation_date)
+					case _ => //ignore
+				}
+			}
+		}
+		
+		private def addTags(tags:List[String], timestamp:Long) = {
+			if (tags != null)
+				if (tags.length > 0) {
+					println("adding tags "+ tags +" at timestamp "+ timestamp)
+					for (tag<-tags) {
+						aggregator ! AggregationResult(tag, timestamp, 1)
+					}
+				}
+		}
+		
+		private def removeTags(tags:List[String], timestamp:Long) = {
+			if (tags != null)
+				if (tags.length > 0) {
+					println("removing tags "+ tags +" at timestamp "+ timestamp)
+					for (tag<-tags) {
+						aggregator ! AggregationResult(tag, timestamp, -1)
+					}
+				}
+		}
+		
+		private def tagDiff(old_tags:List[String], tags:List[String]) : (List[String],List[String]) = {
+			var remTags = List[String]()
+			var addTags = List[String]()
+			for(t<-old_tags)
+				if (!tags.contains(t))
+					remTags = remTags :+ t
+			
+			for(t<-tags)
+				if (!old_tags.contains(t))
+					addTags = addTags :+ t
+			
+			(remTags, addTags)
+		}
+		
+		private def paginate(seq:Seq[Long], pagesize:Int): Seq[Seq[Long]] = {
+			if (seq.length <= pagesize)
+				Seq(seq)
+			else {
+				val split:(Seq[Long],Seq[Long]) = seq.splitAt(pagesize-1)
+				val recursive:Seq[Seq[Long]] = paginate(split _2, pagesize)
+				Seq(split _1)++recursive //prepend does not work
+			}
+		}
+		
+		private def implode(seq:Seq[Long], glue:String) : String = {
+			val sb:StringBuilder = new StringBuilder()
+			var glueing = false
+			for(x <- seq) {
+				if (glueing)
+					sb.append(glue)
+				else
+					glueing = true
+				sb.append(x)
+			}
+			sb.toString()
 		}
 		
 		/**

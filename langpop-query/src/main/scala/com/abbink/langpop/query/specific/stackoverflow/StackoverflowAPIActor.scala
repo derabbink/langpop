@@ -9,7 +9,9 @@ import com.abbink.langpop.query.specific.stackoverflow.StackoverflowAPIActor.Ext
 import com.abbink.langpop.query.specific.stackoverflow.Parser.JsonExtract
 import com.abbink.langpop.query.specific.stackoverflow.Parser.EventsWrapper
 import com.abbink.langpop.query.specific.stackoverflow.Parser.Event
-import com.abbink.langpop.query.specific.stackoverflow.Parser.classofEventsWrapper
+import com.abbink.langpop.query.specific.stackoverflow.Parser.TypeClassifier
+import com.abbink.langpop.query.specific.stackoverflow.Parser.ClassofEventsWrapper
+import com.abbink.langpop.query.specific.stackoverflow.Parser.ClassofRevisionsWrapper
 import akka.actor.Actor
 import java.net.URI
 import org.apache.http.Header
@@ -38,11 +40,11 @@ import org.apache.http.client.entity.GzipDecompressingEntity
 object StackoverflowAPIActor {
 	sealed trait StackoverflowAPIActorMessage
 	case class Uri(uri:URI) extends StackoverflowAPIActorMessage
-	case class UriParse(datatype:Class[_], uri:URI) extends StackoverflowAPIActorMessage
+	case class UriParse(datatype:TypeClassifier, uri:URI) extends StackoverflowAPIActorMessage
 	
 	sealed trait StackoverflowAPIActorResponseMessage
 	case class Json(data:Option[JValue]) extends StackoverflowAPIActorResponseMessage
-	case class Extracted(datatype:Class[_], data:Option[JsonExtract]) extends StackoverflowAPIActorResponseMessage
+	case class Extracted(datatype:TypeClassifier, data:Option[JsonExtract]) extends StackoverflowAPIActorResponseMessage
 }
 
 class StackoverflowAPIActor extends Actor {
@@ -51,13 +53,13 @@ class StackoverflowAPIActor extends Actor {
 		case message : StackoverflowAPIActorMessage => message match {
 			case Uri(uri) => sender ! Json(getAndParse(uri))
 			case UriParse(datatype, uri) =>
-				println("getting, parsing and extracting")
+				//println("getting, parsing and extracting")
 				sender ! Extracted(datatype, getAndParseAndExtract(datatype, uri))
 		}
 	}
 	
 	private def getAndParse(uri: URI) : Option[JValue] = {
-		println("getting and parsing")
+		//println("getting and parsing")
 		val client : DefaultHttpClient = new DefaultHttpClient()
 		client.addRequestInterceptor(new GZipRequestInterceptor())
 		client.addResponseInterceptor(new GZipResponseInterceptor())
@@ -69,17 +71,18 @@ class StackoverflowAPIActor extends Actor {
 		if (statuscode >= 200 && statuscode < 300) {
 			val entity = response.getEntity()
 			val jsonContent = EntityUtils.toString(entity)
-			println("json content: "+jsonContent)
+			//println("json content: "+jsonContent)
 			Parser.parse(jsonContent)
 		}
 		else
 			None
 	}
 	
-	private def getAndParseAndExtract(datatype:Class[_], uri:URI) : Option[JsonExtract] = {
+	private def getAndParseAndExtract(datatype:TypeClassifier, uri:URI) : Option[JsonExtract] = {
 		val parsed = getAndParse(uri)
 		datatype match {
-			case classofEventsWrapper => Parser.extractEvents(parsed)
+			case ClassofEventsWrapper() => Parser.extractEvents(parsed)
+			case ClassofRevisionsWrapper() => Parser.extractRevisions(parsed)
 		}
 	}
 }
@@ -108,6 +111,21 @@ object Parser {
 		}
 	}
 	
+	/**
+	  * parses and extracts real objects from parsed json for revisions
+	  */
+	def extractRevisions(parsed:Option[JValue]) : Option[RevisionsWrapper] = {
+		parsed match {
+			case None => None
+			case Some(x) =>
+				implicit val formats = DefaultFormats
+				catching(classOf[MappingException]) opt x.extract[RevisionsWrapper]
+				//Some(x.extract[RevisionsWrapper])
+		}
+	}
+	
+	
+	
 	//case classes for improving AST utility
 	
 	//events
@@ -115,8 +133,13 @@ object Parser {
 	case class EventsWrapper(backoff:Option[Int], total:Int, page_size:Int, page:Int, `type`:String, items:List[Event], quota_remaining:Int, quota_max:Int, has_more:Boolean) extends JsonExtract
 	case class Event(event_type:String, event_id:Long, creation_date:Long)
 	
+	case class RevisionsWrapper(backoff:Option[Int], total:Int, page_size:Int, page:Int, `type`:String, items:List[Revision], quota_remaining:Int, quota_max:Int, has_more:Boolean) extends JsonExtract
+	case class Revision(post_type:String, post_id:Long, creation_date:Long, last_tags:Option[List[String]], tags:Option[List[String]])
+	
 	//cannot do pattern matching over generics. so we do it over arguments. This is ugly, and not quite as typesafe
-	val classofEventsWrapper:Class[_] = classOf[EventsWrapper]
+	sealed trait TypeClassifier
+	case class ClassofEventsWrapper extends TypeClassifier
+	case class ClassofRevisionsWrapper extends TypeClassifier
 }
 
 class GZipRequestInterceptor extends HttpRequestInterceptor {
