@@ -90,8 +90,8 @@ object Parser {
 	  * wrapper method introduced to explore json-lift with tests
 	  */
 	def parse(json:String) : Option[JValue] = {
-		//catching(classOf[ParseException]) opt JsonParser.parse(json)
-		Some(JsonParser.parse(json))
+		catching(classOf[ParseException]) opt JsonParser.parse(json)
+		//Some(JsonParser.parse(json))
 	}
 	
 	//Cannot write generic function without complicated Manifest magic
@@ -103,8 +103,8 @@ object Parser {
 			case None => None
 			case Some(x) =>
 				implicit val formats = DefaultFormats
-				//catching(classOf[MappingException]) opt x.extract[EventsWrapper]
-				Some(x.extract[EventsWrapper])
+				catching(classOf[MappingException]) opt x.extract[EventsWrapper]
+				//Some(x.extract[EventsWrapper])
 		}
 	}
 	

@@ -144,8 +144,9 @@ trait StackoverflowEventExtractorComponent {
 			// /2.1/events?pagesize=100&site=stackoverflow&filter=!9hnGt*H(i
 			// /events cannot be ordered
 			
-			val events = getEvents(from)
-			//TODO drop events newer than #now. those will be picked up in the next poll iteration
+			
+			val events = getEvents(from, now)
+			//TODO use event IDs to query event information
 			
 			//schedule next poll
 			currentTimestamp = now + 1
@@ -164,7 +165,7 @@ trait StackoverflowEventExtractorComponent {
 		/**
 		  * produces a seq of event IDs in chronological order.
 		  */
-		private def getEvents(from:Long) : Seq[Long]= {
+		private def getEvents(from:Long, to:Long) : Seq[Long]= {
 			import scala.collection.JavaConversions._
 			//accumulative argument that collects all relevant events with (timestamp, event ID)
 			//maintains chronological order
@@ -172,10 +173,13 @@ trait StackoverflowEventExtractorComponent {
 			traversePages(from, 1, events)
 			
 			//use events to generate result
-			var eventIds : List[Long] = events.iterator().toList map (x => x _2)
-			println("All events: "+ eventIds)
-			//TODO
-			null
+			//drop events newer than #to. those will be picked up in next iteration.
+			var eventIds : List[Long] = events.iterator().toList
+				.filter(x => (x _1) < to)
+				.map (x => x _2)
+			println("event IDs: "+ eventIds)
+			
+			eventIds
 		}
 		
 		/**
@@ -204,7 +208,7 @@ trait StackoverflowEventExtractorComponent {
 			val extracted = Await.result[Extracted](f, timeout.duration)
 			val eventsw : Option[EventsWrapper] = extracted.data.asInstanceOf[Option[EventsWrapper]]
 			
-			println("parsed page: "+ eventsw)
+			//println("parsed page: "+ eventsw)
 			
 			if (eventsw != None) {
 				val data = eventsw.get
@@ -220,12 +224,12 @@ trait StackoverflowEventExtractorComponent {
 			import scala.collection.JavaConversions._
 			val items = data.items
 					.filter (e => e match {
-						case Event("question_posted", _, _) => false
-						case Event("post_edited", _, _) => false
-						case _ => true
+						case Event("question_posted", _, _) => true
+						case Event("post_edited", _, _) => true
+						case _ => false
 					})
 					.map (e => (e.creation_date, e.event_id))
-			println("One page: "+items)
+			//println("One page: "+items)
 			results addAll items
 		}
 		
@@ -236,9 +240,13 @@ trait StackoverflowEventExtractorComponent {
 		private def continueTaversing(from:Long, data:EventsWrapper, results:NavigableSet[(Long, Long)]) = {
 			// backoff:Option[Int], total:Int, page_size:Int, page:Int, `type`:String,
 			// items:List[Event], quota_remaining:Int, quota_max:Int, has_more:Boolean
+			//println("continue traversing")
 			if (data.has_more) {
-				val totalPages = max(1, ceil(data.total / data.page_size).toInt)
+				//println("continue traversing - has more")
+				val totalPages = max(1, ceil(data.total.toDouble / data.page_size)).toInt
+				//println("continue traversing - total pages: "+totalPages)
 				if (data.page < totalPages) {
+					//println("continue traversing doing it")
 					traversePages(from, data.page+1, results)
 				}
 			}
