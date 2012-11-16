@@ -173,7 +173,7 @@ trait StackoverflowEventExtractorComponent {
 			
 			//use events to generate result
 			var eventIds : List[Long] = events.iterator().toList map (x => x _2)
-			println(eventIds)
+			println("All events: "+ eventIds)
 			//TODO
 			null
 		}
@@ -204,6 +204,8 @@ trait StackoverflowEventExtractorComponent {
 			val extracted = Await.result[Extracted](f, timeout.duration)
 			val eventsw : Option[EventsWrapper] = extracted.data.asInstanceOf[Option[EventsWrapper]]
 			
+			println("parsed page: "+ eventsw)
+			
 			if (eventsw != None) {
 				val data = eventsw.get
 				collectEvents(from, data, results)
@@ -218,17 +220,18 @@ trait StackoverflowEventExtractorComponent {
 			import scala.collection.JavaConversions._
 			val items = data.items
 					.filter (e => e match {
-						case Event("question_posted", _, _) => true
-						case Event("post_edited", _, _) => true
-						case _ => false
+						case Event("question_posted", _, _) => false
+						case Event("post_edited", _, _) => false
+						case _ => true
 					})
 					.map (e => (e.creation_date, e.event_id))
+			println("One page: "+items)
 			results addAll items
 		}
 		
 		/**
 		  * read wrapper data and recursively traverse pages if needed
-		  * respects backoff value
+		  * does not respects backoff value
 		  */
 		private def continueTaversing(from:Long, data:EventsWrapper, results:NavigableSet[(Long, Long)]) = {
 			// backoff:Option[Int], total:Int, page_size:Int, page:Int, `type`:String,

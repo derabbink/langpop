@@ -12,6 +12,8 @@ import com.abbink.langpop.query.specific.stackoverflow.Parser.Event
 import com.abbink.langpop.query.specific.stackoverflow.Parser.classofEventsWrapper
 import akka.actor.Actor
 import java.net.URI
+import org.apache.http.Header
+import org.apache.http.protocol.HttpContext
 import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.client.HttpClient
 import org.apache.http.client.utils.URIBuilder
@@ -23,6 +25,15 @@ import scala.util.control.Exception.catching
 import net.liftweb.json.JsonParser.ParseException
 import net.liftweb.json.MappingException
 import net.liftweb.json.DefaultFormats
+import org.apache.http.HttpRequest
+import org.apache.http.HttpRequestInterceptor
+import java.io.IOException
+import org.apache.http.HttpException
+import org.apache.http.HttpResponseInterceptor
+import org.apache.http.HttpEntity
+import org.apache.http.HttpResponse
+import com.sun.jndi.dns.Header
+import org.apache.http.client.entity.GzipDecompressingEntity
 
 object StackoverflowAPIActor {
 	sealed trait StackoverflowAPIActorMessage
@@ -39,19 +50,26 @@ class StackoverflowAPIActor extends Actor {
 	def receive = {
 		case message : StackoverflowAPIActorMessage => message match {
 			case Uri(uri) => sender ! Json(getAndParse(uri))
-			case UriParse(datatype, uri) => sender ! Extracted(datatype, getAndParseAndExtract(datatype, uri))
+			case UriParse(datatype, uri) =>
+				println("getting, parsing and extracting")
+				sender ! Extracted(datatype, getAndParseAndExtract(datatype, uri))
 		}
 	}
 	
 	private def getAndParse(uri: URI) : Option[JValue] = {
-		val client : HttpClient = new DefaultHttpClient()
+		println("getting and parsing")
+		val client : DefaultHttpClient = new DefaultHttpClient()
+		client.addRequestInterceptor(new GZipRequestInterceptor())
+		client.addResponseInterceptor(new GZipResponseInterceptor())
 		val get = new HttpGet(uri)
 		val response = client.execute(get)
 		val statuscode = response.getStatusLine().getStatusCode()
+		get.releaseConnection()
 		
 		if (statuscode >= 200 && statuscode < 300) {
 			val entity = response.getEntity()
 			val jsonContent = EntityUtils.toString(entity)
+			println("json content: "+jsonContent)
 			Parser.parse(jsonContent)
 		}
 		else
@@ -72,7 +90,8 @@ object Parser {
 	  * wrapper method introduced to explore json-lift with tests
 	  */
 	def parse(json:String) : Option[JValue] = {
-		catching(classOf[ParseException]) opt JsonParser.parse(json)
+		//catching(classOf[ParseException]) opt JsonParser.parse(json)
+		Some(JsonParser.parse(json))
 	}
 	
 	//Cannot write generic function without complicated Manifest magic
@@ -84,7 +103,8 @@ object Parser {
 			case None => None
 			case Some(x) =>
 				implicit val formats = DefaultFormats
-				catching(classOf[MappingException]) opt x.extract[EventsWrapper]
+				//catching(classOf[MappingException]) opt x.extract[EventsWrapper]
+				Some(x.extract[EventsWrapper])
 		}
 	}
 	
@@ -97,4 +117,35 @@ object Parser {
 	
 	//cannot do pattern matching over generics. so we do it over arguments. This is ugly, and not quite as typesafe
 	val classofEventsWrapper:Class[_] = classOf[EventsWrapper]
+}
+
+class GZipRequestInterceptor extends HttpRequestInterceptor {
+	
+	@throws(classOf[HttpException])
+	@throws(classOf[IOException])
+	def process(request:HttpRequest, context:HttpContext) = {
+		if (!request.containsHeader("Accept-Encoding")) {
+			request.addHeader("Accept-Encoding", "gzip")
+		}
+	}
+}
+
+class GZipResponseInterceptor extends HttpResponseInterceptor {
+	
+	@throws(classOf[HttpException])
+	@throws(classOf[IOException])
+	def process(response:HttpResponse, context:HttpContext) = {
+		val entity : HttpEntity = response.getEntity()
+		if (entity != null) {
+			val ceheader:org.apache.http.Header = entity.getContentEncoding();
+			if (ceheader != null) {
+				var codecs = ceheader.getElements()
+				for(codec <- codecs) {
+					if (codec.getName().equalsIgnoreCase("gzip"))
+						response.setEntity(new GzipDecompressingEntity(response.getEntity()))
+				}
+			}
+		}
+	}
+	
 }
