@@ -28,7 +28,7 @@ trait GithubEventExtractorComponent {
 		
 		private val log = Logging(context.system, this)
 		
-		protected def start(args:AnyRef*) {
+		protected def start(args:AnyRef) {
 			//TODO start consuming events
 		}
 		

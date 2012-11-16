@@ -14,7 +14,7 @@ object QuerySystem {
 trait QuerySystem {
 	def init(actorSystem:ActorSystem, githubActorRef:ActorRef, stackoverflowActorRef:ActorRef, startTimestamp:Long)
 	
-	def startStackOverflow(accessToken:String)
+	def startStackOverflow(accessToken:String, apiKey:String)
 	def startGithub()
 	
 	def stopStackOverflow()
@@ -55,19 +55,21 @@ trait QuerySystemComponent {
 		private def initGithub() = {}
 		
 		private def initStackOverflow() = {
+			println("QuerySystem.initStackOverflow()")
 			//this may happen twice. the second time it will just silently fail
 			try{
+				println("QuerySystem.initStackOverflow() - starting StackoverflowEventExtractor")
 				stackoverflowExtractorActorRef = system.actorOf(Props(combinedSpecificEventExtractorFactory.createStackoverflow(system, stackoverflowActorRef, startTimestamp)), name = "StackoverflowEventExtractor")
+				println("QuerySystem.initStackOverflow() - started StackoverflowEventExtractor")
 			}
 			catch {
 				case _ => stackoverflowExtractorActorRef = system.actorFor("/user/StackoverflowEventExtractor")
 			}
 		}
 		
-		def startStackOverflow(accessToken:String) = {
-			//sometimes the actor ref is not initialized
-			initStackOverflow()
-			stackoverflowExtractorActorRef ! Start(accessToken)
+		def startStackOverflow(accessToken:String, apiKey:String) = {
+			println("QuerySystem.startStackOverflow() - ref: "+ stackoverflowExtractorActorRef.toString())
+			stackoverflowExtractorActorRef ! Start((accessToken, apiKey))
 		}
 		
 		def startGithub() = {}

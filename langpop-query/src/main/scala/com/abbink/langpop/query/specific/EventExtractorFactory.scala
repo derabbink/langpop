@@ -27,6 +27,7 @@ trait CombinedSpecificEventExtractorFactoryComponent {
 		}
 		
 		def createStackoverflow(system:ActorSystem, aggregator:ActorRef, beginTimestamp:Long) : SpecificEventExtractor = {
+			println("CombinedSpecificEventExtractorFactory.createStackoverflow()")
 			stackoverflowEventExtractorFactory.create(system, aggregator, beginTimestamp)
 		}
 	}

@@ -17,7 +17,7 @@ class Scalatra extends LifeCycle with ComponentRegistry {
 		aggregate.aggregator.init()
 		val token = stackOverflowAuth.token()
 		if (token != None)
-			query.querySystem.startStackOverflow(token.get)
+			query.querySystem.startStackOverflow(token.get, stackOverflowAuth.appKey())
 		
 		// Mount one or more servlets
 		context.mount(new LangpopServlet, "/langpop/*")

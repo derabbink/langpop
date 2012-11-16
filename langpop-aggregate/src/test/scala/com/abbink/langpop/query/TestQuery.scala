@@ -15,7 +15,7 @@ object QuerySystemTestImpl extends QuerySystem {
 		//TODO
 	}
 	
-	def startStackOverflow(accessToken:String) = {
+	def startStackOverflow(accessToken:String, apiKey:String) = {
 		//TODO
 	}
 	

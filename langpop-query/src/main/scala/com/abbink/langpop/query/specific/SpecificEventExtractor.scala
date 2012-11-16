@@ -14,7 +14,7 @@ import akka.actor.ActorSystem
 
 object SpecificEventExtractor {
 	sealed trait SpecificEventExtractorControlMessage
-	case class Start(args:AnyRef*) extends SpecificEventExtractorControlMessage
+	case class Start(args:AnyRef) extends SpecificEventExtractorControlMessage
 	case class Stop extends SpecificEventExtractorControlMessage
 	case class AskRunning extends SpecificEventExtractorControlMessage
 	
@@ -26,7 +26,7 @@ object SpecificEventExtractor {
 }
 
 trait SpecificEventExtractor extends Actor {
-	protected def start(args:AnyRef*)
+	protected def start(args:AnyRef)
 	
 	protected def stop()
 	
@@ -46,9 +46,12 @@ abstract class SpecificEventExtractorImpl(val system:ActorSystem, val aggregator
 	
 	def receive = {
 		case message : SpecificEventExtractorControlMessage => message match {
-			case Start(args) => start(args)
+			case Start(args) =>
+				println("SpecificEventExtractor.receive Start()")
+				start(args)
 			case Stop() => stop()
 			case AskRunning() => sender ! Running(isRunning())
 		}
+		case m => println("SpecificEventExtractor.received unknown: "+m.toString())
 	}
 }

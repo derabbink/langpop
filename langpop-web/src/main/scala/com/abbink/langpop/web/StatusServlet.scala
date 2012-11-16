@@ -56,7 +56,7 @@ class StatusServlet extends ScalatraServlet with ScalateSupport with ComponentRe
 		if (!stackOverflowStatus.isRunning()) {
 			val token = stackOverflowAuth.token()
 			if (token != None)
-				query.querySystem.startStackOverflow(token.get)
+				query.querySystem.startStackOverflow(token.get, stackOverflowAuth.appKey())
 		}
 		//TODO github
 		redirect("/status")

@@ -45,7 +45,7 @@ langpop-aggregate {
 }
 
 langpop-query {
-	langopop {
+	langpop {
 		query {
 			stackoverflow {
 				eventQueryInterval = 60

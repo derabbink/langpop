@@ -25,6 +25,8 @@ trait StackOverflowAuth {
 	
 	def token() : Option[String]
 	
+	def appKey() : String
+	
 	def isAuthenticated() : Boolean
 	
 	def buildOAuthUrl() : String
@@ -44,6 +46,7 @@ trait StackOverflowAuthComponent {
 		
 		private val client_id = mergedConfig.getString("langpop.web.auth.stackoverflow.client_id")
 		private val client_secret = mergedConfig.getString("langpop.web.auth.stackoverflow.client_secret")
+		private val key = mergedConfig.getString("langpop.web.auth.stackoverflow.key")
 		private val scope = "no_expiry"
 		private val redirect_uri = mergedConfig.getString("langpop.web.auth.stackoverflow.redirect_uri")
 		private val credentialsFileName = mergedConfig.getString("langpop.web.auth.stackoverflow.credentialsFile")
@@ -54,6 +57,10 @@ trait StackOverflowAuthComponent {
 		
 		def token() : Option[String] = {
 			access_token
+		}
+		
+		def appKey() : String = {
+			key
 		}
 		
 		def isAuthenticated() = {

@@ -11,6 +11,7 @@ import com.abbink.langpop.query.specific.stackoverflow.StackoverflowAPIActor.Jso
 import com.abbink.langpop.query.specific.stackoverflow.Parser.EventsWrapper
 import com.abbink.langpop.query.specific.stackoverflow.Parser.Event
 import com.abbink.langpop.query.specific.stackoverflow.Parser.classofEventsWrapper
+import com.abbink.langpop.query.specific.stackoverflow.StackoverflowAPIActor.Extracted
 import scala.math._
 import akka.actor.ActorRef
 import akka.event.Logging
@@ -49,6 +50,7 @@ trait StackoverflowEventExtractorComponent {
 	
 	object StackoverflowEventExtractorFactoryImpl extends StackoverflowEventExtractorFactory {
 		override def create(system:ActorSystem, aggregator:ActorRef, beginTimestamp:Long) : StackoverflowEventExtractor = {
+			println("StackoverflowEventExtractorFactory.create()")
 			new StackoverflowEventExtractorImpl(system, aggregator, beginTimestamp)
 		}
 	}
@@ -88,10 +90,12 @@ trait StackoverflowEventExtractorComponent {
 			}
 		}
 		
-		protected def start(args:AnyRef*) = {
+		protected def start(args:AnyRef) = {
+			println("StackoverflowEventExtractorImpl.start()")
 			running = true
-			accessToken = args(0).asInstanceOf[String]
-			apiKey = args(1).asInstanceOf[String]
+			val args2 = args.asInstanceOf[(String, String)]
+			accessToken = (args2 _1).asInstanceOf[String]
+			apiKey = (args2 _2).asInstanceOf[String]
 			val now : Long = DateTimeUtils.currentTimeMillis()/1000
 			//set #currentTimestamp to no more than 10 seconds back (just to keep the first poll from being too large)
 			currentTimestamp = max(currentTimestamp, now-10)
@@ -196,8 +200,9 @@ trait StackoverflowEventExtractorComponent {
 			val uri = uriBuilder.build
 			
 			val timeout:Timeout = Timeout(10 seconds)
-			val f:Future[Option[EventsWrapper]] = ask(apiActorRef, UriParse(classofEventsWrapper, uri))(timeout).mapTo[Option[EventsWrapper]]
-			val eventsw = Await.result[Option[EventsWrapper]](f, timeout.duration)
+			val f:Future[Extracted] = ask(apiActorRef, UriParse(classofEventsWrapper, uri))(timeout).mapTo[Extracted]
+			val extracted = Await.result[Extracted](f, timeout.duration)
+			val eventsw : Option[EventsWrapper] = extracted.data.asInstanceOf[Option[EventsWrapper]]
 			
 			if (eventsw != None) {
 				val data = eventsw.get
