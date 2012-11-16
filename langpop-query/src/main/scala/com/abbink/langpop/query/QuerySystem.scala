@@ -33,7 +33,7 @@ trait QuerySystemComponent {
 	def querySystem:QuerySystem
 	
 	object QuerySystemImpl extends QuerySystem {
-		
+		println("QuerySystem.<init>")
 		private val config = ConfigFactory.load()
 		private val mergedConfig = config.getConfig("langpop-query").withFallback(config)
 		
@@ -45,6 +45,7 @@ trait QuerySystemComponent {
 		private var stackoverflowExtractorActorRef : ActorRef = _
 		
 		def init(actorSystem:ActorSystem, githubActorRef:ActorRef, stackoverflowActorRef:ActorRef, startTimestamp:Long) = {
+			println("QuerySystem.init()")
 			system = actorSystem
 			this.startTimestamp = startTimestamp
 			initGithub()

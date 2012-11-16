@@ -20,6 +20,8 @@ object Aggregator {
 }
 
 trait Aggregator {
+	def init()
+	
 	def retrieve(tags:Set[String], timestamp:Long) : CombinedResponse
 }
 
@@ -30,7 +32,7 @@ trait AggregatorComponent {
 	def aggregator:Aggregator
 	
 	object AggregatorImpl extends Aggregator {
-		
+		println("Aggregator.<init>")
 		private val config = ConfigFactory.load()
 		private val mergedConfig = config.getConfig("langpop-aggregate").withFallback(config)
 		private val tagsFileName = mergedConfig getString "langpop.aggregate.tagsfile"
@@ -42,9 +44,8 @@ trait AggregatorComponent {
 		private var githubAggregatorRef : ActorRef = _
 		private var stackoverflowAggregatorRef : ActorRef = _
 		
-		init()
-		
-		private def init() = {
+		def init() = {
+			println("Aggregator.init()")
 			tags = readTags(tagsFileName)
 			startAggregators(tags, startTime)
 			initQuerySystem(startTime)

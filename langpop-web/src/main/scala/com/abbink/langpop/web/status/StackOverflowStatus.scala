@@ -1,11 +1,11 @@
 package com.abbink.langpop.web.status
 
+import com.abbink.langpop.aggregate.QueryDependencyComponent
 import com.abbink.langpop.web.auth.StackOverflowAuth
 import com.abbink.langpop.web.auth.StackOverflowAuth
 import com.abbink.langpop.web.ComponentRegistry
 import com.abbink.langpop.web.auth.StackOverflowAuth
 import com.abbink.langpop.web.auth.StackOverflowAuthComponent
-import com.abbink.langpop.web.QueryDependencyComponent
 
 trait StackOverflowStatus {
 	

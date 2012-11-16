@@ -13,6 +13,12 @@ import com.abbink.langpop.web.StatusServlet
 class Scalatra extends LifeCycle with ComponentRegistry {
 	override def init(context: ServletContext) {
 		
+		println("doing Quick & Dirty init")
+		aggregate.aggregator.init()
+		val token = stackOverflowAuth.token()
+		if (token != None)
+			query.querySystem.startStackOverflow(token.get)
+		
 		// Mount one or more servlets
 		context.mount(new LangpopServlet, "/langpop/*")
 		context.mount(new AuthServlet, "/auth/*")

@@ -1,6 +1,8 @@
 package com.abbink.langpop.web
 
 import com.abbink.langpop.aggregate.{ComponentRegistry => AggregateComponentRegistry}
+import com.abbink.langpop.aggregate.QueryDependencyComponent
+import com.abbink.langpop.aggregate.Query
 import com.abbink.langpop.query.{ComponentRegistry => QueryComponentRegistry}
 import com.abbink.langpop.web.auth.StackOverflowAuthComponent
 import com.abbink.langpop.web.auth.StackOverflowAuth
@@ -14,7 +16,7 @@ trait ComponentRegistry extends
 	StackOverflowStatusComponent
 {
 	def aggregate : Aggregate = AggregateImpl
-	def query : Query = QueryImpl
+	def query : Query = aggregate.query
 	def stackOverflowAuth : StackOverflowAuth = StackOverflowAuthImpl
 	def stackOverflowStatus : StackOverflowStatus = StackOverflowStatusImpl
 }
@@ -25,24 +27,10 @@ trait ComponentRegistry extends
 trait Aggregate extends AggregateComponentRegistry
 
 /**
-  * langpop-query
-  */
-trait Query extends QueryComponentRegistry
-
-/**
   * linking dependency here
   */
 trait AggregateDependencyComponent {
 	def aggregate:Aggregate
 	
 	object AggregateImpl extends Aggregate
-}
-
-/**
-  * linking dependency here
-  */
-trait QueryDependencyComponent {
-	def query:Query
-	
-	object QueryImpl extends Query
 }
